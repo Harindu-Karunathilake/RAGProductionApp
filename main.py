@@ -19,4 +19,4 @@ serializer=inngest.PydanticSerializer()
 
 app = FastAPI()
 
-inngest.fastd
+inngest.fast_api.add_routes(app, inngest_client)
