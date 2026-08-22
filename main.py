@@ -19,3 +19,4 @@ serializer=inngest.PydanticSerializer()
 
 app = FastAPI()
 
+inngest
