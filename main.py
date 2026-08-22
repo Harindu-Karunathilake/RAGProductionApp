@@ -17,4 +17,5 @@ serializer=inngest.PydanticSerializer()
 
 )
 
-app = fas
+app = FastAPI()
+
