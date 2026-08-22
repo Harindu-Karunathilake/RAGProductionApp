@@ -1,0 +1,17 @@
+[project]
+name = "ragproductionapp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Hikarunathilake", email = "hikarunathilake@students.nsbm.ac.lk" }
+]
+requires-python = ">=3.8"
+dependencies = []
+
+[project.scripts]
+ragproductionapp = "ragproductionapp:main"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
