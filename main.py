@@ -17,4 +17,4 @@ serializer=inngest.PydanticSerializer()
 
 )
 
-app 
+app = fas
