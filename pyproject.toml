@@ -7,7 +7,17 @@ authors = [
     { name = "Hikarunathilake", email = "hikarunathilake@students.nsbm.ac.lk" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "fastapi>=0.141.1",
+    "inngest>=0.5.19",
+    "llama-index-core>=0.14.24",
+    "llama-index-readers-file>=0.6.0",
+    "openai>=3.3.1",
+    "python-dotenv>=1.2.3",
+    "qdrant-client>=1.19.0",
+    "streamlit>=1.62.0",
+    "uvicorn>=0.52.4",
+]
 
 [project.scripts]
 ragproductionapp = "ragproductionapp:main"
