@@ -10,10 +10,10 @@ import datetime
 load_dotenv()
 
 inngest_client = inngest.Inngest(
-app_id="rag_app",
-logging=logging.getLogger("uvicorn")
-is_production=False,
-serializer=inngest.PydanticSerializer()
+    app_id="rag_app",
+    logger=logging.getLogger("uvicorn"),
+    is_production=False,
+    serializer=inngest.PydanticSerializer(),
 
 )
 
@@ -23,9 +23,10 @@ serializer=inngest.PydanticSerializer()
 )
 
 async def rag_ingest_pdf(ctx: inngest.Context):
+    return {"status": "success"}
 
 app = FastAPI()
 
 # app.get()
 
-inngest.fast_api.serve(app, inngest_client, functions=[])
+inngest.fast_api.serve(app, inngest_client, functions=[rag_ingest_pdf])
