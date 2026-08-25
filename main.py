@@ -87,16 +87,19 @@ async def rag_query_pdf_ai(ctx: inngest.Context):
         "llm-answer",
         adapter=adapter,
         body={
-            "max_tokens": 1024,
-            "temperature": 0.2,
-            "messages": [
-                {"role": "system", "content": "You answer questions using only the provided context."},
-                {"role": "user", "content": user_content}
-            ]
+            "contents": [
+                {
+                    "parts": [{"text": "You answer questions using only the provided context.\n\n" + user_content}]
+                }
+            ],
+            "generationConfig": {
+                "maxOutputTokens": 1024,
+                "temperature": 0.2
+            }
         }
     )
 
-    answer = res["choices"][0]["message"]["content"].strip()
+    answer = res["candidates"][0]["content"]["parts"][0]["text"].strip()
     return {"answer": answer, "sources": found.sources, "num_contexts": len(found.contexts)}
 
 app = FastAPI()
