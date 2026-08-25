@@ -37,4 +37,4 @@ class QdrantStorage:
                 contexts.append(text)
                 sources.add(source)
 
-        return {"contexts": contexts, "sources": sources}
+        return {"contexts": contexts, "sources": list(sources)}
