@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import uuid
 import os
 import datetime
+from data_loader import load_and_chunk_pdf, embed_texts
 
 load_dotenv()
 

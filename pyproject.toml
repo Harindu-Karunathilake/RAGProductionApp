@@ -19,8 +19,6 @@ dependencies = [
     "uvicorn>=0.52.4",
 ]
 
-[project.scripts]
-ragproductionapp = "ragproductionapp:main"
 
 [build-system]
 requires = ["uv_build>=0.12.5,<0.13.0"]
