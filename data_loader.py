@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 client = genai.Client()
-EMBED_MODEL = "text-embedding-004"
+EMBED_MODEL = "gemini-embedding-2"
 EMBED_DIM = 768
 
 splitter = SentenceSplitter(chunk_size=1000, chunk_overlap=200)
