@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Antigravity RAG Chat</title>
+    <meta name="description" content="AI Assistant connected to your PDFs using RAG technology.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <div id="app">
+      <aside class="sidebar glass-panel">
+        <div class="logo">
+          <h2>Antigravity RAG</h2>
+        </div>
+        <div class="upload-section">
+          <p>Upload a PDF to build the knowledge base</p>
+          <label for="pdf-upload" class="upload-btn">Choose PDF</label>
+          <input type="file" id="pdf-upload" accept=".pdf" />
+          <span id="upload-status"></span>
+        </div>
+      </aside>
+      <main class="chat-area">
+        <header class="chat-header glass-panel">
+          <h1>Knowledge Assistant</h1>
+          <p>Ask anything about your documents</p>
+        </header>
+        <div class="chat-messages" id="chat-messages">
+          <div class="message assistant">
+            <div class="avatar">AI</div>
+            <div class="bubble">Hello! I'm your AI assistant. Upload a PDF on the left and ask me questions about it!</div>
+          </div>
+        </div>
+        <div class="chat-input-container glass-panel">
+          <input type="text" id="chat-input" placeholder="Type your question..." autocomplete="off" />
+          <button id="send-btn" aria-label="Send">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>

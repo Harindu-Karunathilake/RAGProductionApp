@@ -1,5 +1,7 @@
 import logging
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import inngest
 import inngest.fast_api
 from inngest.experimental import ai
@@ -104,4 +106,59 @@ async def rag_query_pdf_ai(ctx: inngest.Context):
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 inngest.fast_api.serve(app, inngest_client, [rag_ingest_pdf, rag_query_pdf_ai])
+
+class QueryRequest(BaseModel):
+    question: str
+    top_k: int = 5
+
+@app.post("/api/upload")
+async def api_upload(file: UploadFile = File(...)):
+    file_path = f"{file.filename}"
+    with open(file_path, "wb") as f:
+        f.write(await file.read())
+    
+    inngest_client.send(
+        inngest.Event(
+            name="rag/ingest_pdf",
+            data={
+                "pdf_path": file_path,
+                "source_id": file.filename
+            }
+        )
+    )
+    return {"message": "Upload successful! Ingestion started.", "filename": file.filename}
+
+@app.post("/api/query")
+async def api_query(req: QueryRequest):
+    query_vec = embed_texts([req.question])[0]
+    store = QdrantStorage()
+    found = store.search(query_vec, req.top_k)
+    
+    context_block = "\n\n".join(f"- {c}" for c in found["contexts"])
+    user_content = (
+        "Use the following context to answer the question.\n\n"
+        f"Context:\n{context_block}\n\n"
+        f"Question: {req.question}\n"
+        "Answer concisely using the context above."
+    )
+    
+    from data_loader import client
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents="You answer questions using only the provided context.\n\n" + user_content,
+    )
+    
+    return {
+        "answer": response.text, 
+        "sources": found["sources"], 
+        "num_contexts": len(found["contexts"])
+    }
