@@ -7,9 +7,9 @@ import uuid
 import os
 import datetime
 
-laod_dotenv()
+load_dotenv()
 
-inngest_client = inngest.Client(
+inngest_client = inngest.Inngest(
 app_id="rag_app",
 logging=logging.getLogger("uvicorn")
 is_production=False,
@@ -17,8 +17,10 @@ serializer=inngest.PydanticSerializer()
 
 )
 
+
+
 app = FastAPI()
 
-app.get()
+# app.get()
 
-inngest.fast_api.serve(app, inngest_client)
+inngest.fast_api.serve(app, inngest_client, functions=[])
