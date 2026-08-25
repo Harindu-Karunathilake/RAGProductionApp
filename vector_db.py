@@ -13,3 +13,7 @@ class QdrantStorage:
                 collection_name=self.collection,
                 vectors_config=VectorParams(size=self.dim, distance=Distance.COSINE)
             )
+
+    def upsert(self, id, vector, payload):
+        points = [PointStruct(id=ids[i], vector=vectors[i], payload=payload) for i in range(len(ids))]
+        self.client.upsert(collection_name=self.collection, points=points)
