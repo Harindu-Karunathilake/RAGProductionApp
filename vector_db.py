@@ -15,8 +15,11 @@ class QdrantStorage:
                 vectors_config=VectorParams(size=self.dim, distance=Distance.COSINE)
             )
 
-    def upsert(self, id, vector, payload):
-        points = [PointStruct(id=id, vector=vector, payload=payload)]
+    def upsert(self, ids, vectors, payloads):
+        points = [
+            PointStruct(id=id, vector=vector, payload=payload)
+            for id, vector, payload in zip(ids, vectors, payloads)
+        ]
         self.client.upsert(collection_name=self.collection, points=points)
 
     def search(self, vector, top_k=5):
