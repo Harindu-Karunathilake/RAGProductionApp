@@ -126,7 +126,7 @@ async def api_upload(file: UploadFile = File(...)):
     with open(file_path, "wb") as f:
         f.write(await file.read())
     
-    inngest_client.send(
+    await inngest_client.send(
         inngest.Event(
             name="rag/ingest_pdf",
             data={
