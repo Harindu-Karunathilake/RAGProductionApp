@@ -1,6 +1,7 @@
 import logging
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import inngest
 import inngest.fast_api
@@ -162,3 +163,8 @@ async def api_query(req: QueryRequest):
         "sources": found["sources"], 
         "num_contexts": len(found["contexts"])
     }
+
+# Serve the static frontend
+import os
+if os.path.isdir("frontend/dist"):
+    app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="static")

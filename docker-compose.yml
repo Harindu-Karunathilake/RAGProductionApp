@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+    volumes:
+      - ./qdrant_storage:/qdrant/storage
+
+  inngest:
+    image: inngest/inngest:latest
+    ports:
+      - "8288:8288"
+      - "8289:8289"
+    command: ["inngest", "dev", "-u", "http://app:8000/api/inngest"]
+
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - QDRANT_URL=http://qdrant:6333
+      - INNGEST_BASE_URL=http://inngest:8288
+      - INNGEST_DEV=1
+    env_file:
+      - .env
+    depends_on:
+      - qdrant
+      - inngest
