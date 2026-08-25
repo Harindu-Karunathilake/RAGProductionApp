@@ -1,13 +1,13 @@
-from openai import OpenAI
+from google import genai
 from llama_index.readers.file import PDFReader
 from llama_index.core.node_parser import SentenceSplitter
 from dotenv import load_dotenv
 
 load_dotenv()
 
-client = OpenAI()
-EMBED_MODEL = "text-embedding-3-large"
-EMBED_DIM = 3072
+client = genai.Client()
+EMBED_MODEL = "text-embedding-004"
+EMBED_DIM = 768
 
 splitter = SentenceSplitter(chunk_size=1000, chunk_overlap=200)
 
@@ -21,8 +21,8 @@ def load_and_chunk_pdf(path: str):
 
 
 def embed_texts(texts: list[str]) -> list[list[float]]:
-    response = client.embeddings.create(
+    response = client.models.embed_content(
         model=EMBED_MODEL,
-        input=texts,
+        contents=texts,
     )
-    return [item.embedding for item in response.data]
+    return [item.values for item in response.embeddings]
