@@ -4,152 +4,342 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RAG Knowledge Base</title>
-    <meta name="description" content="AI-powered knowledge base system with document retrieval.">
+    <meta name="description" content="AI-powered knowledge base management system.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
   </head>
   <body>
     <div id="app">
 
-      <!-- ── LOGIN VIEW ─────────────────────────── -->
+      <!-- ════════════════════════════════════════
+           LOGIN VIEW
+           ════════════════════════════════════════ -->
       <div id="login-view" class="view active">
-        <div class="auth-wrapper">
-          <div class="auth-card glass">
-            <div class="auth-logo">
-              <div class="auth-logo-icon">⚡</div>
-              <h1>RAG Knowledge</h1>
-              <p>Sign in to manage your AI-powered<br>knowledge bases</p>
-            </div>
+        <div class="login-bg-texture"></div>
+        <div class="login-glow-1"></div>
+        <div class="login-glow-2"></div>
 
-            <div class="auth-fields">
-              <div class="field-group">
-                <input type="text" id="username" placeholder="Username" autocomplete="username" />
-              </div>
-              <div class="field-group">
-                <input type="password" id="password" placeholder="Password" autocomplete="current-password" />
-              </div>
+        <div class="login-card">
+          <div class="login-brand">
+            <div class="brand-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
             </div>
-
-            <div class="auth-actions">
-              <button id="login-btn" class="btn btn-primary">Sign In</button>
-              <div class="auth-divider">or</div>
-              <button id="register-btn" class="btn btn-secondary">Create Account</button>
-            </div>
-
-            <p id="auth-error" class="error-msg"></p>
+            <span class="brand-name">RAG<span class="brand-accent">base</span></span>
           </div>
+
+          <div class="login-heading">
+            <h1>Welcome back</h1>
+            <p>Sign in to your knowledge base workspace</p>
+          </div>
+
+          <div class="login-fields">
+            <div class="input-group">
+              <div class="input-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <input id="username" type="text" placeholder="Username" autocomplete="username" />
+            </div>
+            <div class="input-group">
+              <div class="input-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+              <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
+            </div>
+          </div>
+
+          <div class="login-actions">
+            <button id="login-btn" class="btn-login">
+              <span>Sign In</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+            <button id="register-btn" class="btn-register">Create account</button>
+          </div>
+
+          <p id="auth-error" class="auth-error"></p>
         </div>
       </div>
 
-      <!-- ── DASHBOARD VIEW ──────────────────────── -->
+      <!-- ════════════════════════════════════════
+           DASHBOARD VIEW
+           ════════════════════════════════════════ -->
       <div id="dashboard-view" class="view hidden">
-        <header class="dash-header">
-          <div class="dash-header-left">
-            <div class="dash-logo-icon">⚡</div>
-            <h2>RAG Knowledge</h2>
-          </div>
-          <div class="dash-header-right">
-            <button id="logout-btn" class="btn btn-ghost" style="padding: 8px 16px; font-size: 0.85rem;">Sign Out</button>
-          </div>
-        </header>
-
-        <div class="dash-body">
-          <div class="dash-section-header">
-            <div>
-              <h3>Knowledge Bases</h3>
-              <p>Select a knowledge base to start chatting with your documents</p>
-            </div>
-            <button id="create-kb-btn" class="btn btn-primary" style="white-space: nowrap;">+ New Knowledge Base</button>
-          </div>
-
-          <div class="kb-grid" id="kb-grid">
-            <!-- populated by JS -->
-          </div>
-        </div>
-      </div>
-
-      <!-- ── NEW KB MODAL ────────────────────────── -->
-      <div id="new-kb-modal" class="modal hidden">
-        <div class="modal-card glass">
-          <div class="modal-header">
-            <h3>New Knowledge Base</h3>
-            <button class="modal-close" id="cancel-kb-btn">✕</button>
-          </div>
-
-          <div class="modal-field">
-            <label>Name</label>
-            <input type="text" id="new-kb-name" placeholder="e.g. Company Wiki, Research Papers…" />
-          </div>
-
-          <div class="modal-field">
-            <label>Description <span style="font-weight:400; text-transform: none; letter-spacing:0">(optional)</span></label>
-            <textarea id="new-kb-desc" placeholder="What kind of documents will this contain?"></textarea>
-          </div>
-
-          <div class="modal-actions">
-            <button id="cancel-kb-btn2" class="btn btn-secondary">Cancel</button>
-            <button id="submit-kb-btn" class="btn btn-primary">Create</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── CHAT VIEW ───────────────────────────── -->
-      <div id="chat-view" class="view hidden">
+        <div class="bg-texture"></div>
 
         <!-- Sidebar -->
-        <aside class="chat-sidebar">
-          <button id="back-to-dash-btn" class="sidebar-back">
-            ← Dashboard
-          </button>
-
-          <div class="sidebar-kb-info">
-            <div class="kb-badge">📚 Active KB</div>
-            <h3 id="current-kb-title">Knowledge Base</h3>
+        <aside class="sidebar" id="sidebar">
+          <div class="sidebar-brand">
+            <div class="brand-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            </div>
+            <span class="brand-name">RAG<span class="brand-accent">base</span></span>
           </div>
 
-          <div class="sidebar-section-title">Documents</div>
+          <nav class="sidebar-nav">
+            <div class="nav-section-label">Main</div>
+            <a class="nav-item active" id="nav-dashboard">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              <span>Overview</span>
+            </a>
+            <a class="nav-item" id="nav-kb">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              <span>Knowledge Bases</span>
+            </a>
 
-          <label for="pdf-upload">
-            <div class="upload-drop-area">
-              <div class="upload-icon">📄</div>
-              <p><strong>Click to upload PDF</strong><br>Your document will be indexed automatically</p>
+            <div class="nav-section-label" style="margin-top:8px;">Account</div>
+            <a class="nav-item" id="logout-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              <span>Sign Out</span>
+            </a>
+          </nav>
+
+          <div class="sidebar-footer">
+            <div class="sidebar-user" id="sidebar-user">
+              <div class="user-avatar" id="user-avatar-sidebar">U</div>
+              <div class="user-info">
+                <span class="user-name" id="sidebar-username">User</span>
+                <span class="user-role">Admin</span>
+              </div>
             </div>
-          </label>
-          <input type="file" id="pdf-upload" accept=".pdf" />
-          <span id="upload-status"></span>
+          </div>
         </aside>
 
-        <!-- Main Chat -->
-        <div class="chat-main">
-          <div class="chat-topbar">
-            <h1>Knowledge Assistant</h1>
-            <p id="chat-topbar-sub">Ask anything about your documents</p>
+        <!-- Main Content -->
+        <div class="main-area">
+          <!-- Topbar -->
+          <header class="topbar">
+            <div class="topbar-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" placeholder="Search knowledge bases…" id="dash-search" />
+            </div>
+            <div class="topbar-right">
+              <button class="topbar-btn" id="create-kb-btn" title="New Knowledge Base">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>New KB</span>
+              </button>
+              <div class="topbar-user" id="topbar-user">
+                <div class="user-avatar sm" id="user-avatar-top">U</div>
+                <span id="topbar-username">User</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;opacity:.4"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+          </header>
+
+          <!-- Scrollable content -->
+          <div class="content-scroll">
+
+            <!-- Hero Banner -->
+            <div class="hero-banner">
+              <div class="hero-glow"></div>
+              <div class="hero-illustration">
+                <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="60" cy="60" r="50" fill="url(#g1)" opacity="0.15"/>
+                  <circle cx="60" cy="60" r="35" fill="url(#g1)" opacity="0.2"/>
+                  <circle cx="60" cy="60" r="18" fill="url(#g1)" opacity="0.35"/>
+                  <!-- Tentacles -->
+                  <path d="M48 78 Q44 95 40 105" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M54 82 Q52 100 50 112" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M60 83 Q60 102 60 114" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M66 82 Q68 100 70 112" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M72 78 Q76 95 80 105" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
+                  <!-- Dome highlight -->
+                  <ellipse cx="52" cy="50" rx="10" ry="7" fill="white" opacity="0.08" transform="rotate(-20 52 50)"/>
+                  <defs>
+                    <radialGradient id="g1" cx="50%" cy="40%" r="50%">
+                      <stop offset="0%" stop-color="#818cf8"/>
+                      <stop offset="100%" stop-color="#3730a3"/>
+                    </radialGradient>
+                    <linearGradient id="g2" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#818cf8" stop-opacity="0.8"/>
+                      <stop offset="100%" stop-color="#818cf8" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+              <div class="hero-text">
+                <p class="hero-eyebrow">AI-Powered</p>
+                <h2 class="hero-title">Welcome to <span id="hero-username">your workspace</span></h2>
+                <p class="hero-sub">Manage your knowledge bases, upload documents, and chat with your data using AI.</p>
+              </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="stats-row">
+              <div class="stat-card">
+                <div class="stat-icon blue">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                </div>
+                <div class="stat-body">
+                  <span class="stat-label">Knowledge Bases</span>
+                  <span class="stat-value" id="stat-kbs">0</span>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon violet">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                </div>
+                <div class="stat-body">
+                  <span class="stat-label">Documents Indexed</span>
+                  <span class="stat-value">—</span>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon cyan">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <div class="stat-body">
+                  <span class="stat-label">AI Queries</span>
+                  <span class="stat-value">—</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- KB Section -->
+            <div class="section-header">
+              <h3>Knowledge Bases</h3>
+            </div>
+
+            <div class="kb-grid" id="kb-grid">
+              <!-- populated by JS -->
+            </div>
+
+          </div><!-- /content-scroll -->
+        </div><!-- /main-area -->
+      </div><!-- /dashboard-view -->
+
+      <!-- ════════════════════════════════════════
+           NEW KB MODAL
+           ════════════════════════════════════════ -->
+      <div id="new-kb-modal" class="modal hidden">
+        <div class="modal-backdrop" id="modal-backdrop"></div>
+        <div class="modal-card">
+          <div class="modal-header">
+            <div class="modal-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            </div>
+            <h3>New Knowledge Base</h3>
+            <button class="modal-close" id="cancel-kb-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
           </div>
+          <div class="modal-body">
+            <div class="modal-field">
+              <label>Name</label>
+              <input type="text" id="new-kb-name" placeholder="e.g. Company Wiki, Research Papers…" />
+            </div>
+            <div class="modal-field">
+              <label>Description <span class="label-opt">(optional)</span></label>
+              <textarea id="new-kb-desc" placeholder="Describe what documents this knowledge base will contain…"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button id="cancel-kb-btn2" class="btn-outline">Cancel</button>
+            <button id="submit-kb-btn" class="btn-solid">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Create Knowledge Base
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════
+           CHAT VIEW
+           ════════════════════════════════════════ -->
+      <div id="chat-view" class="view hidden">
+        <div class="bg-texture"></div>
+
+        <!-- Sidebar (same as dashboard) -->
+        <aside class="sidebar">
+          <div class="sidebar-brand">
+            <div class="brand-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            </div>
+            <span class="brand-name">RAG<span class="brand-accent">base</span></span>
+          </div>
+
+          <nav class="sidebar-nav">
+            <div class="nav-section-label">Navigation</div>
+            <a class="nav-item" id="back-to-dash-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              <span>Back to Dashboard</span>
+            </a>
+
+            <div class="nav-section-label" style="margin-top:16px;">Active KB</div>
+            <div class="sidebar-kb-info">
+              <div class="kb-info-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              </div>
+              <span id="current-kb-title">Knowledge Base</span>
+            </div>
+
+            <div class="nav-section-label" style="margin-top:24px;">Documents</div>
+            <div class="upload-section">
+              <label for="pdf-upload" class="upload-label">
+                <div class="upload-area">
+                  <div class="upload-area-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+                  </div>
+                  <p class="upload-area-text">Click to upload PDF</p>
+                  <p class="upload-area-sub">Auto-indexed on upload</p>
+                </div>
+              </label>
+              <input type="file" id="pdf-upload" accept=".pdf" />
+              <div id="upload-status" class="upload-status-msg"></div>
+            </div>
+          </nav>
+
+          <div class="sidebar-footer">
+            <div class="sidebar-user">
+              <div class="user-avatar">U</div>
+              <div class="user-info">
+                <span class="user-name">User</span>
+                <span class="user-role">Admin</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Chat Main -->
+        <div class="main-area">
+          <header class="topbar">
+            <div class="topbar-chat-info">
+              <div class="topbar-kb-dot"></div>
+              <h2 id="chat-topbar-title">Knowledge Assistant</h2>
+            </div>
+            <div class="topbar-right">
+              <div class="ai-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                gemini-2.5-flash
+              </div>
+            </div>
+          </header>
 
           <div class="chat-messages" id="chat-messages">
             <div class="message assistant">
-              <div class="msg-avatar">AI</div>
-              <div class="msg-bubble">Hello! I'm your AI assistant. Upload a PDF on the left and ask me questions about it!</div>
+              <div class="msg-avatar-wrap">
+                <div class="msg-avatar ai">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                </div>
+              </div>
+              <div class="msg-content">
+                <div class="msg-bubble ai">Hello! Upload a PDF on the left, then ask me anything about your documents.</div>
+              </div>
             </div>
           </div>
 
           <div class="chat-input-bar">
             <div class="chat-input-wrap">
-              <input type="text" id="chat-input" placeholder="Ask a question about your documents…" autocomplete="off" />
-              <button id="send-btn" aria-label="Send message">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="22" y1="2" x2="11" y2="13"></line>
-                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
+              <input type="text" id="chat-input" placeholder="Ask a question about your knowledge base…" autocomplete="off" />
+              <button id="send-btn" title="Send">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
               </button>
             </div>
+            <p class="chat-input-hint">Press Enter to send · Answers are grounded in your uploaded documents</p>
           </div>
         </div>
-
       </div>
-    </div>
 
+    </div><!-- /#app -->
     <script type="module" src="/main.js"></script>
   </body>
 </html>
