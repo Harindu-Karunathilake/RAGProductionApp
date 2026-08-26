@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   qdrant:
@@ -25,6 +24,12 @@ services:
       - INNGEST_DEV=1
     env_file:
       - .env
+    volumes:
+      - pdf_uploads:/app/uploads      # Uploaded PDFs persist across restarts
+      - ./app.db:/app/app.db          # SQLite DB persists on host machine
     depends_on:
       - qdrant
       - inngest
+
+volumes:
+  pdf_uploads:

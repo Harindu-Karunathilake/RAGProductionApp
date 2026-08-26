@@ -189,8 +189,12 @@ async def api_upload(
     kb = db.query(KnowledgeBase).filter(KnowledgeBase.id == kb_id, KnowledgeBase.user_id == current_user.id).first()
     if not kb:
         raise HTTPException(status_code=404, detail="Knowledge base not found or unauthorized")
-        
-    file_path = f"{file.filename}"
+
+    # Store under /app/uploads/<user_id>/<kb_id>/<filename>
+    upload_dir = os.path.join("uploads", str(current_user.id), str(kb_id))
+    os.makedirs(upload_dir, exist_ok=True)
+    file_path = os.path.join(upload_dir, file.filename)
+
     with open(file_path, "wb") as f:
         f.write(await file.read())
     
