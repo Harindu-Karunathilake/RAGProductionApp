@@ -728,6 +728,69 @@ body {
 }
 
 /* ════════════════════════════════════════════════════
+   KB FILE LIST (sidebar)
+   ════════════════════════════════════════════════════ */
+.kb-file-list {
+  display: flex; flex-direction: column; gap: 6px;
+  margin-top: 4px;
+}
+
+.file-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px;
+  border-radius: var(--r-sm);
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--border);
+  transition: all .18s;
+  animation: fileItemIn .25s ease forwards;
+  opacity: 0;
+}
+@keyframes fileItemIn {
+  from { opacity:0; transform: translateX(-8px); }
+  to   { opacity:1; transform: translateX(0); }
+}
+.file-item:hover {
+  background: rgba(99,102,241,.08);
+  border-color: rgba(99,102,241,.2);
+}
+
+.file-item-icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: rgba(99,102,241,.12);
+  border: 1px solid rgba(99,102,241,.2);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; color: var(--accent-2);
+}
+.file-item-icon svg { width: 14px; height: 14px; }
+
+.file-item-info {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.file-item-name {
+  font-size: .78rem; font-weight: 600;
+  color: var(--text-1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.file-item-meta {
+  font-size: .68rem; color: var(--text-3);
+}
+
+.file-item-status {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--teal); flex-shrink: 0;
+  box-shadow: 0 0 6px var(--teal);
+}
+
+.file-list-empty {
+  font-size: .78rem; color: var(--text-3);
+  text-align: center; padding: 12px 8px;
+  border: 1px dashed var(--border);
+  border-radius: var(--r-sm);
+}
+
+
+/* ════════════════════════════════════════════════════
    CHAT MESSAGES
    ════════════════════════════════════════════════════ */
 .chat-messages {

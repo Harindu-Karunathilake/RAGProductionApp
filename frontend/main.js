@@ -252,10 +252,65 @@ submitKbBtn.addEventListener('click', async () => {
 // ════════════════════════════════════════════════════
 // CHAT
 // ════════════════════════════════════════════════════
+// ── File list ─────────────────────────────────────────
+async function fetchKbFiles() {
+  if (!currentKbId) return;
+  try {
+    const res = await fetch(`${API_BASE}/kb/${currentKbId}/files`, {
+      headers: { 'Authorization': `Bearer ${authToken}` }
+    });
+    if (!res.ok) return;
+    const files = await res.json();
+    renderFileList(files);
+  } catch { /* silent */ }
+}
+
+function formatBytes(bytes) {
+  if (bytes < 1024)       return `${bytes} B`;
+  if (bytes < 1048576)    return `${(bytes/1024).toFixed(1)} KB`;
+  return `${(bytes/1048576).toFixed(1)} MB`;
+}
+
+function formatRelTime(ts) {
+  const diff = Date.now() - ts * 1000;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1)   return 'Just now';
+  if (mins < 60)  return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24)   return `${hrs}h ago`;
+  return `${Math.floor(hrs/24)}d ago`;
+}
+
+function renderFileList(files) {
+  const container = document.getElementById('kb-file-list');
+  if (!container) return;
+
+  if (files.length === 0) {
+    container.innerHTML = `<div class="file-list-empty">No documents yet</div>`;
+    return;
+  }
+
+  container.innerHTML = files.map((f, i) => `
+    <div class="file-item" style="animation-delay:${i * 50}ms">
+      <div class="file-item-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      </div>
+      <div class="file-item-info">
+        <span class="file-item-name" title="${escHtml(f.name)}">${escHtml(f.name)}</span>
+        <span class="file-item-meta">${formatBytes(f.size)} · ${formatRelTime(f.uploaded_at)}</span>
+      </div>
+      <div class="file-item-status" title="Indexed"></div>
+    </div>`).join('');
+}
+
 function openChat(kbId, kbName) {
   currentKbId = kbId;
   if (currentKbTitle)  currentKbTitle.textContent  = kbName;
   if (chatTopbarTitle) chatTopbarTitle.textContent  = kbName;
+
+  // Reset file list
+  const fileList = document.getElementById('kb-file-list');
+  if (fileList) fileList.innerHTML = `<div class="file-list-empty">Loading documents…</div>`;
 
   chatMessages.innerHTML = `
     <div class="message assistant">
@@ -267,6 +322,7 @@ function openChat(kbId, kbName) {
       </div>
     </div>`;
   showView(chatView);
+  fetchKbFiles();
 }
 
 backToDashBtn.addEventListener('click', () => { currentKbId = null; showDashboard(); });
@@ -292,6 +348,8 @@ pdfUpload.addEventListener('change', async e => {
       uploadStatus.textContent = '✓ Uploaded — indexing in progress';
       uploadStatus.style.color = '#34d399';
       setTimeout(() => { uploadStatus.textContent = ''; }, 7000);
+      // Refresh file list
+      await fetchKbFiles();
     } else { throw new Error(); }
   } catch {
     uploadStatus.textContent = '✗ Upload failed';

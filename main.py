@@ -210,6 +210,34 @@ async def api_upload(
     )
     return {"message": "Upload successful! Ingestion started.", "filename": file.filename}
 
+@app.get("/api/kb/{kb_id}/files")
+def list_kb_files(
+    kb_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    kb = db.query(KnowledgeBase).filter(KnowledgeBase.id == kb_id, KnowledgeBase.user_id == current_user.id).first()
+    if not kb:
+        raise HTTPException(status_code=404, detail="Knowledge base not found or unauthorized")
+
+    upload_dir = os.path.join("uploads", str(current_user.id), str(kb_id))
+    if not os.path.isdir(upload_dir):
+        return []
+
+    files = []
+    for fname in os.listdir(upload_dir):
+        fpath = os.path.join(upload_dir, fname)
+        if os.path.isfile(fpath):
+            stat = os.stat(fpath)
+            files.append({
+                "name": fname,
+                "size": stat.st_size,
+                "uploaded_at": stat.st_mtime
+            })
+    # Sort by most recently uploaded
+    files.sort(key=lambda x: x["uploaded_at"], reverse=True)
+    return files
+
 @app.post("/api/query")
 async def api_query(
     req: QueryRequest,
