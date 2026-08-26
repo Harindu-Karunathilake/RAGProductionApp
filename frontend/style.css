@@ -309,3 +309,27 @@ input[type="file"] {
   0%, 80%, 100% { transform: scale(0); }
   40% { transform: scale(1); }
 }
+
+/* Markdown formatting inside bubble */
+.bubble p {
+  margin-bottom: 0.75em;
+}
+.bubble p:last-child {
+  margin-bottom: 0;
+}
+.bubble ul, .bubble ol {
+  margin-left: 1.5em;
+  margin-bottom: 0.75em;
+}
+.bubble li {
+  margin-bottom: 0.25em;
+}
+.bubble strong {
+  font-weight: 600;
+}
+.bubble code {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-family: monospace;
+}

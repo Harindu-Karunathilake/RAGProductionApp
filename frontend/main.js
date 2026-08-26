@@ -1,3 +1,4 @@
+import { marked } from 'marked';
 const API_BASE = '/api';
 
 const chatMessages = document.getElementById('chat-messages');
@@ -48,9 +49,8 @@ function createMessageElement(content, isUser = false, sources = []) {
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
   
-  // Format markdown-like bold (basic implementation)
-  const formattedContent = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  bubble.innerHTML = formattedContent;
+  // Format markdown properly using marked
+  bubble.innerHTML = marked.parse(content);
 
   if (sources.length > 0) {
     const badgesDiv = document.createElement('div');
