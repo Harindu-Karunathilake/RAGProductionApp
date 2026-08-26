@@ -77,7 +77,7 @@ async def rag_query_pdf_ai(ctx: inngest.Context):
         "Use the following context to answer the question.\n\n"
         f"Context:\n{context_block}\n\n"
         f"Question: {question}\n"
-        "Answer concisely using the context above."
+        "Answer concisely using the context above. Format your output in a structured way using Markdown (e.g., headers, bullet points) so it is easy to read."
     )
 
     import inngest.experimental.ai.gemini
@@ -149,7 +149,7 @@ async def api_query(req: QueryRequest):
         "Use the following context to answer the question.\n\n"
         f"Context:\n{context_block}\n\n"
         f"Question: {req.question}\n"
-        "Answer concisely using the context above."
+        "Answer concisely using the context above. Format your output in a structured way using Markdown (e.g., headers, bullet points) so it is easy to read."
     )
     
     from data_loader import client
