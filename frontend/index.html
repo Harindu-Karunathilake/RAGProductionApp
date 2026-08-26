@@ -3,101 +3,153 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Antigravity RAG Chat</title>
-    <meta name="description" content="AI Assistant connected to your PDFs using RAG technology.">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>RAG Knowledge Base</title>
+    <meta name="description" content="AI-powered knowledge base system with document retrieval.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
   </head>
   <body>
     <div id="app">
-      <!-- LOGIN VIEW -->
-      <div id="login-view" class="view active glass-panel">
-        <div class="auth-box">
-          <div class="logo">
-            <h2>Antigravity RAG</h2>
-          </div>
-          <p>Login or Register to manage your Knowledge Bases</p>
-          <div class="auth-form">
-            <input type="text" id="username" placeholder="Username" autocomplete="off" />
-            <input type="password" id="password" placeholder="Password" />
-            <div class="auth-actions">
-              <button id="login-btn" class="primary">Login</button>
-              <button id="register-btn" class="secondary">Register</button>
+
+      <!-- ── LOGIN VIEW ─────────────────────────── -->
+      <div id="login-view" class="view active">
+        <div class="auth-wrapper">
+          <div class="auth-card glass">
+            <div class="auth-logo">
+              <div class="auth-logo-icon">⚡</div>
+              <h1>RAG Knowledge</h1>
+              <p>Sign in to manage your AI-powered<br>knowledge bases</p>
             </div>
+
+            <div class="auth-fields">
+              <div class="field-group">
+                <input type="text" id="username" placeholder="Username" autocomplete="username" />
+              </div>
+              <div class="field-group">
+                <input type="password" id="password" placeholder="Password" autocomplete="current-password" />
+              </div>
+            </div>
+
+            <div class="auth-actions">
+              <button id="login-btn" class="btn btn-primary">Sign In</button>
+              <div class="auth-divider">or</div>
+              <button id="register-btn" class="btn btn-secondary">Create Account</button>
+            </div>
+
             <p id="auth-error" class="error-msg"></p>
           </div>
         </div>
       </div>
 
-      <!-- DASHBOARD VIEW -->
+      <!-- ── DASHBOARD VIEW ──────────────────────── -->
       <div id="dashboard-view" class="view hidden">
-        <header class="dash-header glass-panel">
-          <div class="logo">
-            <h2>Your Knowledge Bases</h2>
+        <header class="dash-header">
+          <div class="dash-header-left">
+            <div class="dash-logo-icon">⚡</div>
+            <h2>RAG Knowledge</h2>
           </div>
-          <button id="logout-btn" class="secondary">Logout</button>
+          <div class="dash-header-right">
+            <button id="logout-btn" class="btn btn-ghost" style="padding: 8px 16px; font-size: 0.85rem;">Sign Out</button>
+          </div>
         </header>
-        
-        <div class="kb-actions">
-          <button id="create-kb-btn" class="primary">+ New Knowledge Base</button>
-        </div>
 
-        <div class="kb-grid" id="kb-grid">
-          <!-- KB Cards will be rendered here -->
+        <div class="dash-body">
+          <div class="dash-section-header">
+            <div>
+              <h3>Knowledge Bases</h3>
+              <p>Select a knowledge base to start chatting with your documents</p>
+            </div>
+            <button id="create-kb-btn" class="btn btn-primary" style="white-space: nowrap;">+ New Knowledge Base</button>
+          </div>
+
+          <div class="kb-grid" id="kb-grid">
+            <!-- populated by JS -->
+          </div>
         </div>
       </div>
 
-      <!-- NEW KB MODAL -->
+      <!-- ── NEW KB MODAL ────────────────────────── -->
       <div id="new-kb-modal" class="modal hidden">
-        <div class="modal-content glass-panel">
-          <h3>Create Knowledge Base</h3>
-          <input type="text" id="new-kb-name" placeholder="Knowledge Base Name" />
-          <textarea id="new-kb-desc" placeholder="Description (optional)"></textarea>
+        <div class="modal-card glass">
+          <div class="modal-header">
+            <h3>New Knowledge Base</h3>
+            <button class="modal-close" id="cancel-kb-btn">✕</button>
+          </div>
+
+          <div class="modal-field">
+            <label>Name</label>
+            <input type="text" id="new-kb-name" placeholder="e.g. Company Wiki, Research Papers…" />
+          </div>
+
+          <div class="modal-field">
+            <label>Description <span style="font-weight:400; text-transform: none; letter-spacing:0">(optional)</span></label>
+            <textarea id="new-kb-desc" placeholder="What kind of documents will this contain?"></textarea>
+          </div>
+
           <div class="modal-actions">
-            <button id="cancel-kb-btn" class="secondary">Cancel</button>
-            <button id="submit-kb-btn" class="primary">Create</button>
+            <button id="cancel-kb-btn2" class="btn btn-secondary">Cancel</button>
+            <button id="submit-kb-btn" class="btn btn-primary">Create</button>
           </div>
         </div>
       </div>
 
-      <!-- CHAT VIEW -->
+      <!-- ── CHAT VIEW ───────────────────────────── -->
       <div id="chat-view" class="view hidden">
-        <aside class="sidebar glass-panel">
-          <div class="logo">
-            <h2 id="current-kb-title">Antigravity RAG</h2>
+
+        <!-- Sidebar -->
+        <aside class="chat-sidebar">
+          <button id="back-to-dash-btn" class="sidebar-back">
+            ← Dashboard
+          </button>
+
+          <div class="sidebar-kb-info">
+            <div class="kb-badge">📚 Active KB</div>
+            <h3 id="current-kb-title">Knowledge Base</h3>
           </div>
-          <button id="back-to-dash-btn" class="secondary back-btn">← Back to Dashboard</button>
-          <div class="upload-section">
-            <p>Upload a PDF to this knowledge base</p>
-            <label for="pdf-upload" class="upload-btn">Choose PDF</label>
-            <input type="file" id="pdf-upload" accept=".pdf" />
-            <span id="upload-status"></span>
-          </div>
+
+          <div class="sidebar-section-title">Documents</div>
+
+          <label for="pdf-upload">
+            <div class="upload-drop-area">
+              <div class="upload-icon">📄</div>
+              <p><strong>Click to upload PDF</strong><br>Your document will be indexed automatically</p>
+            </div>
+          </label>
+          <input type="file" id="pdf-upload" accept=".pdf" />
+          <span id="upload-status"></span>
         </aside>
-        <main class="chat-area">
-          <header class="chat-header glass-panel">
+
+        <!-- Main Chat -->
+        <div class="chat-main">
+          <div class="chat-topbar">
             <h1>Knowledge Assistant</h1>
-            <p>Ask anything about your documents</p>
-          </header>
+            <p id="chat-topbar-sub">Ask anything about your documents</p>
+          </div>
+
           <div class="chat-messages" id="chat-messages">
             <div class="message assistant">
-              <div class="avatar">AI</div>
-              <div class="bubble">Hello! I'm your AI assistant. Upload a PDF on the left and ask me questions about it!</div>
+              <div class="msg-avatar">AI</div>
+              <div class="msg-bubble">Hello! I'm your AI assistant. Upload a PDF on the left and ask me questions about it!</div>
             </div>
           </div>
-          <div class="chat-input-container glass-panel">
-            <input type="text" id="chat-input" placeholder="Type your question..." autocomplete="off" />
-            <button id="send-btn" aria-label="Send">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-              </svg>
-            </button>
-          </div>
-        </main>
-      </div>
 
+          <div class="chat-input-bar">
+            <div class="chat-input-wrap">
+              <input type="text" id="chat-input" placeholder="Ask a question about your documents…" autocomplete="off" />
+              <button id="send-btn" aria-label="Send message">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
+
     <script type="module" src="/main.js"></script>
   </body>
 </html>
