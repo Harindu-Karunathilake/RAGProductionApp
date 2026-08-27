@@ -35,9 +35,27 @@ const sendBtn          = document.getElementById('send-btn');
 const pdfUpload        = document.getElementById('pdf-upload');
 const uploadStatus     = document.getElementById('upload-status');
 
+// ── Learn ─────────────────────────────────────────────
+const tabChatBtn       = document.getElementById('tab-chat-btn');
+const tabLearnBtn      = document.getElementById('tab-learn-btn');
+const chatPanel        = document.getElementById('chat-panel');
+const learnPanel       = document.getElementById('learn-panel');
+const learnTopbarTitle = document.getElementById('learn-topbar-title');
+const ltabQuiz         = document.getElementById('ltab-quiz');
+const ltabFlash        = document.getElementById('ltab-flash');
+const learnQuizContent = document.getElementById('learn-quiz-content');
+const learnFlashContent= document.getElementById('learn-flash-content');
+
 let authToken   = localStorage.getItem('token');
 let currentKbId = null;
 let allKbs      = [];
+
+// Learn state
+let quizData    = null;   // current quiz object {id, title, questions}
+let quizIdx     = 0;
+let quizScore   = 0;
+let fcData      = null;   // current flashcard set {id, title, cards}
+let fcIdx       = 0;
 
 // ════════════════════════════════════════════════════
 // ROUTER
@@ -141,7 +159,6 @@ async function fetchKbs() {
 async function showDashboard() {
   showView(dashboardView);
 
-  // Set username in UI
   const uname = decodeUsername();
   const heroEl = document.getElementById('hero-username');
   const sidebarEl = document.getElementById('sidebar-username');
@@ -161,7 +178,6 @@ async function showDashboard() {
 
   allKbs = await fetchKbs();
 
-  // Update stat
   const statEl = document.getElementById('stat-kbs');
   if (statEl) statEl.textContent = allKbs.length;
 
@@ -211,7 +227,6 @@ function renderKbGrid(kbs) {
   });
 }
 
-// Search filter
 dashSearch && dashSearch.addEventListener('input', () => {
   const q = dashSearch.value.toLowerCase();
   renderKbGrid(allKbs.filter(kb => kb.name.toLowerCase().includes(q) || (kb.description || '').toLowerCase().includes(q)));
@@ -252,7 +267,6 @@ submitKbBtn.addEventListener('click', async () => {
 // ════════════════════════════════════════════════════
 // CHAT
 // ════════════════════════════════════════════════════
-// ── File list ─────────────────────────────────────────
 async function fetchKbFiles() {
   if (!currentKbId) return;
   try {
@@ -307,6 +321,7 @@ function openChat(kbId, kbName) {
   currentKbId = kbId;
   if (currentKbTitle)  currentKbTitle.textContent  = kbName;
   if (chatTopbarTitle) chatTopbarTitle.textContent  = kbName;
+  if (learnTopbarTitle) learnTopbarTitle.textContent = `Learn · ${kbName}`;
 
   // Reset file list
   const fileList = document.getElementById('kb-file-list');
@@ -321,6 +336,9 @@ function openChat(kbId, kbName) {
         <div class="msg-bubble ai">Hello! I'm your AI assistant for <strong>${escHtml(kbName)}</strong>. Upload a PDF on the left and ask me anything!</div>
       </div>
     </div>`;
+
+  // Switch to chat tab by default
+  switchToChat();
   showView(chatView);
   fetchKbFiles();
 }
@@ -348,7 +366,6 @@ pdfUpload.addEventListener('change', async e => {
       uploadStatus.textContent = '✓ Uploaded — indexing in progress';
       uploadStatus.style.color = '#34d399';
       setTimeout(() => { uploadStatus.textContent = ''; }, 7000);
-      // Refresh file list
       await fetchKbFiles();
     } else { throw new Error(); }
   } catch {
@@ -448,11 +465,480 @@ async function sendMessage() {
 sendBtn.addEventListener('click', sendMessage);
 chatInput.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
 
-// ── Utility ──────────────────────────────────────────
+// ════════════════════════════════════════════════════
+// LEARN PANEL — Tab switching
+// ════════════════════════════════════════════════════
+function switchToChat() {
+  chatPanel.classList.remove('hidden');
+  learnPanel.classList.add('hidden');
+  tabChatBtn.classList.add('active');
+  tabLearnBtn.classList.remove('active');
+}
+
+function switchToLearn() {
+  chatPanel.classList.add('hidden');
+  learnPanel.classList.remove('hidden');
+  tabLearnBtn.classList.add('active');
+  tabChatBtn.classList.remove('active');
+  loadLearnPanel(currentKbId);
+}
+
+tabChatBtn.addEventListener('click', switchToChat);
+tabLearnBtn.addEventListener('click', switchToLearn);
+
+// Learn sub-tabs
+ltabQuiz.addEventListener('click', () => {
+  ltabQuiz.classList.add('active');
+  ltabFlash.classList.remove('active');
+  learnQuizContent.classList.remove('hidden');
+  learnFlashContent.classList.add('hidden');
+});
+ltabFlash.addEventListener('click', () => {
+  ltabFlash.classList.add('active');
+  ltabQuiz.classList.remove('active');
+  learnFlashContent.classList.remove('hidden');
+  learnQuizContent.classList.add('hidden');
+});
+
+// ════════════════════════════════════════════════════
+// LEARN PANEL — Load lists
+// ════════════════════════════════════════════════════
+async function loadLearnPanel(kbId) {
+  if (!kbId) return;
+  await Promise.all([loadQuizList(kbId), loadFlashList(kbId)]);
+}
+
+async function loadQuizList(kbId) {
+  const container = document.getElementById('quiz-list');
+  const countEl   = document.getElementById('quiz-count');
+  container.innerHTML = `<div class="learn-empty"><p>Loading…</p></div>`;
+
+  try {
+    const res  = await fetch(`${API_BASE}/kb/${kbId}/quizzes`, {
+      headers: { 'Authorization': `Bearer ${authToken}` }
+    });
+    const list = await res.json();
+    countEl.textContent = list.length;
+
+    if (list.length === 0) {
+      container.innerHTML = `
+        <div class="learn-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <p>No quizzes yet. Generate one above!</p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = list.map(q => `
+      <div class="learn-item" data-quiz-id="${q.id}">
+        <div class="learn-item-icon quiz-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="learn-item-info">
+          <div class="learn-item-title">${escHtml(q.title)}</div>
+          <div class="learn-item-meta">${q.num_questions} questions · ${formatDate(q.created_at)}</div>
+        </div>
+        <div class="learn-item-actions">
+          <button class="learn-item-play" data-quiz-id="${q.id}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Play
+          </button>
+          <button class="learn-item-del" data-del-quiz-id="${q.id}" title="Delete">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          </button>
+        </div>
+      </div>`).join('');
+
+    // Wire play buttons
+    container.querySelectorAll('.learn-item-play').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        playQuiz(parseInt(btn.dataset.quizId));
+      });
+    });
+    // Wire delete buttons
+    container.querySelectorAll('.learn-item-del').forEach(btn => {
+      btn.addEventListener('click', async e => {
+        e.stopPropagation();
+        if (!confirm('Delete this quiz?')) return;
+        await fetch(`${API_BASE}/quiz/${btn.dataset.delQuizId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        loadQuizList(kbId);
+      });
+    });
+  } catch (err) {
+    container.innerHTML = `<div class="learn-empty"><p>Failed to load quizzes.</p></div>`;
+  }
+}
+
+async function loadFlashList(kbId) {
+  const container = document.getElementById('flash-list');
+  const countEl   = document.getElementById('flash-count');
+  container.innerHTML = `<div class="learn-empty"><p>Loading…</p></div>`;
+
+  try {
+    const res  = await fetch(`${API_BASE}/kb/${kbId}/flashcards`, {
+      headers: { 'Authorization': `Bearer ${authToken}` }
+    });
+    const list = await res.json();
+    countEl.textContent = list.length;
+
+    if (list.length === 0) {
+      container.innerHTML = `
+        <div class="learn-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          <p>No flashcard sets yet. Generate one above!</p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = list.map(s => `
+      <div class="learn-item" data-fc-id="${s.id}">
+        <div class="learn-item-icon flash-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        </div>
+        <div class="learn-item-info">
+          <div class="learn-item-title">${escHtml(s.title)}</div>
+          <div class="learn-item-meta">${s.num_cards} cards · ${formatDate(s.created_at)}</div>
+        </div>
+        <div class="learn-item-actions">
+          <button class="learn-item-play" data-fc-id="${s.id}" style="background:linear-gradient(135deg,#f59e0b,#ef4444);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Study
+          </button>
+          <button class="learn-item-del" data-del-fc-id="${s.id}" title="Delete">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          </button>
+        </div>
+      </div>`).join('');
+
+    container.querySelectorAll('.learn-item-play').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        playFlashcards(parseInt(btn.dataset.fcId));
+      });
+    });
+    container.querySelectorAll('.learn-item-del').forEach(btn => {
+      btn.addEventListener('click', async e => {
+        e.stopPropagation();
+        if (!confirm('Delete this flashcard set?')) return;
+        await fetch(`${API_BASE}/flashcards/${btn.dataset.delFcId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        loadFlashList(kbId);
+      });
+    });
+  } catch (err) {
+    container.innerHTML = `<div class="learn-empty"><p>Failed to load flashcards.</p></div>`;
+  }
+}
+
+// ════════════════════════════════════════════════════
+// GENERATE QUIZ
+// ════════════════════════════════════════════════════
+let selectedNumQuestions = 5;
+document.getElementById('quiz-num-picker').addEventListener('click', e => {
+  const btn = e.target.closest('.num-btn');
+  if (!btn) return;
+  document.querySelectorAll('#quiz-num-picker .num-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedNumQuestions = parseInt(btn.dataset.val);
+});
+
+document.getElementById('generate-quiz-btn').addEventListener('click', async () => {
+  const genBtn = document.getElementById('generate-quiz-btn');
+  genBtn.disabled = true;
+  genBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;animation:spin 1s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Generating…`;
+
+  try {
+    const res = await fetch(`${API_BASE}/kb/${currentKbId}/quiz/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+      body: JSON.stringify({ num_questions: selectedNumQuestions })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Generation failed');
+    await loadQuizList(currentKbId);
+    // Auto-play the new quiz
+    playQuizFromData(data);
+  } catch (err) {
+    alert(`Quiz generation failed: ${err.message}`);
+  } finally {
+    genBtn.disabled = false;
+    genBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Generate Quiz`;
+  }
+});
+
+// ════════════════════════════════════════════════════
+// GENERATE FLASHCARDS
+// ════════════════════════════════════════════════════
+let selectedNumCards = 10;
+document.getElementById('flash-num-picker').addEventListener('click', e => {
+  const btn = e.target.closest('.num-btn');
+  if (!btn) return;
+  document.querySelectorAll('#flash-num-picker .num-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedNumCards = parseInt(btn.dataset.val);
+});
+
+document.getElementById('generate-flash-btn').addEventListener('click', async () => {
+  const genBtn = document.getElementById('generate-flash-btn');
+  genBtn.disabled = true;
+  genBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;animation:spin 1s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Generating…`;
+
+  try {
+    const res = await fetch(`${API_BASE}/kb/${currentKbId}/flashcards/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+      body: JSON.stringify({ num_cards: selectedNumCards })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Generation failed');
+    await loadFlashList(currentKbId);
+    // Auto-play the new flashcard set
+    playFlashcardsFromData(data);
+  } catch (err) {
+    alert(`Flashcard generation failed: ${err.message}`);
+  } finally {
+    genBtn.disabled = false;
+    genBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Generate Flashcards`;
+  }
+});
+
+// ════════════════════════════════════════════════════
+// QUIZ PLAYER
+// ════════════════════════════════════════════════════
+async function playQuiz(quizId) {
+  try {
+    const res = await fetch(`${API_BASE}/quiz/${quizId}`, {
+      headers: { 'Authorization': `Bearer ${authToken}` }
+    });
+    const data = await res.json();
+    playQuizFromData(data);
+  } catch { alert('Failed to load quiz.'); }
+}
+
+function playQuizFromData(data) {
+  quizData  = data;
+  quizIdx   = 0;
+  quizScore = 0;
+
+  document.getElementById('quiz-player').classList.remove('hidden');
+  document.getElementById('quiz-player-title').textContent = data.title;
+  document.getElementById('quiz-score-screen').classList.add('hidden');
+  document.getElementById('quiz-question-area').style.display = '';
+  document.querySelector('.quiz-progress-bar-wrap').style.display = '';
+  document.querySelector('.quiz-meta-row').style.display = '';
+
+  renderQuizQuestion();
+
+  // Scroll to player
+  document.getElementById('quiz-player').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderQuizQuestion() {
+  const q      = quizData.questions[quizIdx];
+  const total  = quizData.questions.length;
+  const pct    = ((quizIdx) / total * 100).toFixed(1);
+  const letters= ['A','B','C','D'];
+
+  document.getElementById('quiz-progress-bar').style.width = `${pct}%`;
+  document.getElementById('quiz-q-counter').textContent = `Question ${quizIdx + 1} of ${total}`;
+  document.getElementById('quiz-score-live').textContent = `Score: ${quizScore}`;
+
+  const area = document.getElementById('quiz-question-area');
+  area.innerHTML = `
+    <div class="quiz-question-card">
+      <div class="quiz-question-text">${escHtml(q.question)}</div>
+      <div class="quiz-options" id="quiz-options">
+        ${q.options.map((opt, i) => `
+          <div class="quiz-option" data-opt="${escHtml(opt)}" data-idx="${i}">
+            <div class="quiz-option-letter">${letters[i]}</div>
+            <div class="quiz-option-text">${escHtml(opt)}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  area.querySelectorAll('.quiz-option').forEach(el => {
+    el.addEventListener('click', () => handleQuizAnswer(el, q));
+  });
+}
+
+function handleQuizAnswer(selected, q) {
+  const allOptions = document.querySelectorAll('.quiz-option');
+  allOptions.forEach(el => el.classList.add('revealed'));
+
+  const isCorrect = selected.dataset.opt === q.answer;
+  if (isCorrect) {
+    selected.classList.add('correct');
+    quizScore++;
+  } else {
+    selected.classList.add('wrong');
+    // Highlight correct answer
+    allOptions.forEach(el => {
+      if (el.dataset.opt === q.answer) el.classList.add('correct');
+    });
+  }
+
+  // Show explanation
+  const area = document.getElementById('quiz-question-area');
+  const expDiv = document.createElement('div');
+  expDiv.className = 'quiz-explanation';
+  expDiv.innerHTML = `<strong>Explanation:</strong> ${escHtml(q.explanation)}`;
+  area.appendChild(expDiv);
+
+  // Next/Finish button
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'quiz-next-btn';
+  const isLast = quizIdx === quizData.questions.length - 1;
+  nextBtn.innerHTML = isLast
+    ? `Finish Quiz <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`
+    : `Next Question <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
+  nextBtn.addEventListener('click', () => {
+    quizIdx++;
+    if (quizIdx >= quizData.questions.length) {
+      showQuizScore();
+    } else {
+      renderQuizQuestion();
+    }
+  });
+  area.appendChild(nextBtn);
+
+  document.getElementById('quiz-score-live').textContent = `Score: ${quizScore}`;
+}
+
+function showQuizScore() {
+  const total = quizData.questions.length;
+  const pct   = Math.round((quizScore / total) * 100);
+
+  document.getElementById('quiz-progress-bar').style.width = '100%';
+  document.getElementById('quiz-question-area').style.display = 'none';
+  document.querySelector('.quiz-progress-bar-wrap').style.display = 'none';
+  document.querySelector('.quiz-meta-row').style.display = 'none';
+
+  const screen = document.getElementById('quiz-score-screen');
+  screen.classList.remove('hidden');
+  document.getElementById('score-fraction').textContent = `${quizScore}/${total}`;
+  document.getElementById('score-emoji').textContent = pct >= 80 ? '🎉' : pct >= 60 ? '👍' : '📚';
+  document.getElementById('score-headline').textContent = pct >= 80 ? 'Excellent!' : pct >= 60 ? 'Good job!' : 'Keep studying!';
+  document.getElementById('score-msg').textContent = `You scored ${pct}% — ${quizScore} out of ${total} questions correct.`;
+}
+
+document.getElementById('quiz-back-btn').addEventListener('click', () => {
+  document.getElementById('quiz-player').classList.add('hidden');
+});
+
+document.getElementById('quiz-retry-btn').addEventListener('click', () => {
+  if (quizData) playQuizFromData(quizData);
+});
+
+// ════════════════════════════════════════════════════
+// FLASHCARD PLAYER
+// ════════════════════════════════════════════════════
+async function playFlashcards(fcId) {
+  try {
+    const res = await fetch(`${API_BASE}/flashcards/${fcId}`, {
+      headers: { 'Authorization': `Bearer ${authToken}` }
+    });
+    const data = await res.json();
+    playFlashcardsFromData(data);
+  } catch { alert('Failed to load flashcards.'); }
+}
+
+function playFlashcardsFromData(data) {
+  fcData = data;
+  fcIdx  = 0;
+
+  document.getElementById('flash-player').classList.remove('hidden');
+  document.getElementById('flash-player-title').textContent = data.title;
+
+  // Unflip card
+  const card = document.getElementById('flashcard');
+  card.classList.remove('flipped');
+
+  renderFlashcard();
+  document.getElementById('flash-player').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderFlashcard() {
+  const card  = fcData.cards[fcIdx];
+  const total = fcData.cards.length;
+
+  document.getElementById('flash-counter').textContent = `${fcIdx + 1} / ${total}`;
+  document.getElementById('flash-front-text').textContent = card.front;
+  document.getElementById('flash-back-text').textContent  = card.back;
+
+  // Unflip
+  document.getElementById('flashcard').classList.remove('flipped');
+
+  // Progress dots (cap at 20 for space)
+  const dotsEl = document.getElementById('flash-dots');
+  if (total <= 20) {
+    dotsEl.innerHTML = Array.from({ length: total }, (_, i) => {
+      let cls = 'flash-dot';
+      if (i === fcIdx) cls += ' active';
+      else if (i < fcIdx) cls += ' visited';
+      return `<div class="${cls}"></div>`;
+    }).join('');
+  } else {
+    dotsEl.innerHTML = '';
+  }
+
+  // Prev/Next buttons
+  const prevBtn = document.getElementById('flash-prev-btn');
+  const nextBtn = document.getElementById('flash-next-btn');
+  prevBtn.disabled = fcIdx === 0;
+  const isLast = fcIdx === total - 1;
+  nextBtn.innerHTML = isLast
+    ? `Done <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`
+    : `Next <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>`;
+}
+
+// Flip on card click
+document.getElementById('flashcard').addEventListener('click', () => {
+  document.getElementById('flashcard').classList.toggle('flipped');
+});
+
+document.getElementById('flash-prev-btn').addEventListener('click', () => {
+  if (fcIdx > 0) { fcIdx--; renderFlashcard(); }
+});
+
+document.getElementById('flash-next-btn').addEventListener('click', () => {
+  if (fcIdx < fcData.cards.length - 1) {
+    fcIdx++;
+    renderFlashcard();
+  } else {
+    // Done — close player
+    document.getElementById('flash-player').classList.add('hidden');
+  }
+});
+
+document.getElementById('flash-back-btn').addEventListener('click', () => {
+  document.getElementById('flash-player').classList.add('hidden');
+});
+
+// ════════════════════════════════════════════════════
+// UTILITY
+// ════════════════════════════════════════════════════
 function escHtml(str) {
   return String(str)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+function formatDate(iso) {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  } catch { return iso; }
+}
+
+// Spin animation for loading state
+const style = document.createElement('style');
+style.textContent = `@keyframes spin { to { transform: rotate(360deg); } }`;
+document.head.appendChild(style);
 
 init();

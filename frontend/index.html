@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RAG Knowledge Base</title>
-    <meta name="description" content="AI-powered knowledge base management system.">
+    <meta name="description" content="AI-powered knowledge base management system with quizzes and flashcards.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
@@ -136,13 +136,11 @@
                   <circle cx="60" cy="60" r="50" fill="url(#g1)" opacity="0.15"/>
                   <circle cx="60" cy="60" r="35" fill="url(#g1)" opacity="0.2"/>
                   <circle cx="60" cy="60" r="18" fill="url(#g1)" opacity="0.35"/>
-                  <!-- Tentacles -->
                   <path d="M48 78 Q44 95 40 105" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
                   <path d="M54 82 Q52 100 50 112" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
                   <path d="M60 83 Q60 102 60 114" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
                   <path d="M66 82 Q68 100 70 112" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
                   <path d="M72 78 Q76 95 80 105" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
-                  <!-- Dome highlight -->
                   <ellipse cx="52" cy="50" rx="10" ry="7" fill="white" opacity="0.08" transform="rotate(-20 52 50)"/>
                   <defs>
                     <radialGradient id="g1" cx="50%" cy="40%" r="50%">
@@ -248,7 +246,7 @@
       <div id="chat-view" class="view hidden">
         <div class="bg-texture"></div>
 
-        <!-- Sidebar (same as dashboard) -->
+        <!-- Sidebar -->
         <aside class="sidebar">
           <div class="sidebar-brand">
             <div class="brand-icon">
@@ -272,7 +270,19 @@
               <span id="current-kb-title">Knowledge Base</span>
             </div>
 
-            <div class="nav-section-label" style="margin-top:24px;">Documents</div>
+            <!-- Tabs: Chat / Learn -->
+            <div class="kb-mode-tabs" style="margin-top:20px;">
+              <button class="kb-mode-tab active" id="tab-chat-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Chat
+              </button>
+              <button class="kb-mode-tab" id="tab-learn-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                Learn
+              </button>
+            </div>
+
+            <div class="nav-section-label" style="margin-top:20px;">Documents</div>
             <div class="upload-section">
               <label for="pdf-upload" class="upload-label">
                 <div class="upload-area">
@@ -305,45 +315,224 @@
           </div>
         </aside>
 
-        <!-- Chat Main -->
+        <!-- Main Content Area (Chat or Learn panel) -->
         <div class="main-area">
-          <header class="topbar">
-            <div class="topbar-chat-info">
-              <div class="topbar-kb-dot"></div>
-              <h2 id="chat-topbar-title">Knowledge Assistant</h2>
-            </div>
-            <div class="topbar-right">
-              <div class="ai-badge">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-                gemini-2.5-flash
-              </div>
-            </div>
-          </header>
 
-          <div class="chat-messages" id="chat-messages">
-            <div class="message assistant">
-              <div class="msg-avatar-wrap">
-                <div class="msg-avatar ai">
+          <!-- ── CHAT PANEL ───────────────────────────── -->
+          <div id="chat-panel">
+            <header class="topbar">
+              <div class="topbar-chat-info">
+                <div class="topbar-kb-dot"></div>
+                <h2 id="chat-topbar-title">Knowledge Assistant</h2>
+              </div>
+              <div class="topbar-right">
+                <div class="ai-badge">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                  gemini-2.5-flash
                 </div>
               </div>
-              <div class="msg-content">
-                <div class="msg-bubble ai">Hello! Upload a PDF on the left, then ask me anything about your documents.</div>
+            </header>
+
+            <div class="chat-messages" id="chat-messages">
+              <div class="message assistant">
+                <div class="msg-avatar-wrap">
+                  <div class="msg-avatar ai">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                  </div>
+                </div>
+                <div class="msg-content">
+                  <div class="msg-bubble ai">Hello! Upload a PDF on the left, then ask me anything about your documents.</div>
+                </div>
               </div>
+            </div>
+
+            <div class="chat-input-bar">
+              <div class="chat-input-wrap">
+                <input type="text" id="chat-input" placeholder="Ask a question about your knowledge base…" autocomplete="off" />
+                <button id="send-btn" title="Send">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+              </div>
+              <p class="chat-input-hint">Press Enter to send · Answers are grounded in your uploaded documents</p>
             </div>
           </div>
 
-          <div class="chat-input-bar">
-            <div class="chat-input-wrap">
-              <input type="text" id="chat-input" placeholder="Ask a question about your knowledge base…" autocomplete="off" />
-              <button id="send-btn" title="Send">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-              </button>
-            </div>
-            <p class="chat-input-hint">Press Enter to send · Answers are grounded in your uploaded documents</p>
-          </div>
-        </div>
-      </div>
+          <!-- ── LEARN PANEL ──────────────────────────── -->
+          <div id="learn-panel" class="hidden">
+            <header class="topbar">
+              <div class="topbar-chat-info">
+                <div class="topbar-kb-dot" style="background: linear-gradient(135deg,#f59e0b,#ef4444);"></div>
+                <h2 id="learn-topbar-title">Learn</h2>
+              </div>
+              <div class="topbar-right">
+                <div class="ai-badge" style="background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.25);color:#fbbf24;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/></svg>
+                  AI Generated
+                </div>
+              </div>
+            </header>
+
+            <!-- Learn main scrollable area -->
+            <div class="learn-scroll" id="learn-scroll">
+
+              <!-- Sub-tabs: Quizzes | Flashcards -->
+              <div class="learn-tabs">
+                <button class="learn-tab active" id="ltab-quiz">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  Quizzes
+                </button>
+                <button class="learn-tab" id="ltab-flash">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                  Flashcards
+                </button>
+              </div>
+
+              <!-- ── QUIZ TAB CONTENT ── -->
+              <div id="learn-quiz-content">
+                <!-- Generate -->
+                <div class="learn-gen-card">
+                  <div class="learn-gen-icon quiz-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  </div>
+                  <div class="learn-gen-body">
+                    <h3>Generate a Quiz</h3>
+                    <p>Create multiple-choice questions from your knowledge base content using AI.</p>
+                    <div class="learn-gen-controls">
+                      <label>Number of questions</label>
+                      <div class="num-picker" id="quiz-num-picker">
+                        <button class="num-btn active" data-val="5">5</button>
+                        <button class="num-btn" data-val="10">10</button>
+                        <button class="num-btn" data-val="15">15</button>
+                      </div>
+                      <button class="btn-generate" id="generate-quiz-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        Generate Quiz
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Saved quizzes list -->
+                <div class="learn-list-header">
+                  <h4>Saved Quizzes</h4>
+                  <span class="learn-list-count" id="quiz-count">0</span>
+                </div>
+                <div id="quiz-list" class="learn-item-list">
+                  <!-- populated by JS -->
+                </div>
+
+                <!-- Quiz player -->
+                <div id="quiz-player" class="player-panel hidden">
+                  <div class="player-header">
+                    <button class="player-back-btn" id="quiz-back-btn">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                      Back to Quizzes
+                    </button>
+                    <h3 id="quiz-player-title">Quiz</h3>
+                  </div>
+                  <div class="quiz-progress-bar-wrap">
+                    <div class="quiz-progress-bar" id="quiz-progress-bar"></div>
+                  </div>
+                  <div class="quiz-meta-row">
+                    <span id="quiz-q-counter">Question 1 of 5</span>
+                    <span id="quiz-score-live" class="quiz-score-live">Score: 0</span>
+                  </div>
+                  <div id="quiz-question-area"></div>
+                  <!-- Score screen -->
+                  <div id="quiz-score-screen" class="score-screen hidden">
+                    <div class="score-emoji" id="score-emoji">🎉</div>
+                    <h2 id="score-headline">Quiz Complete!</h2>
+                    <div class="score-circle">
+                      <span id="score-fraction">0/0</span>
+                    </div>
+                    <p id="score-msg" class="score-msg">Great job!</p>
+                    <button class="btn-generate" id="quiz-retry-btn" style="margin-top:16px;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5.9"/></svg>
+                      Retake Quiz
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ── FLASHCARD TAB CONTENT ── -->
+              <div id="learn-flash-content" class="hidden">
+                <!-- Generate -->
+                <div class="learn-gen-card">
+                  <div class="learn-gen-icon flash-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                  </div>
+                  <div class="learn-gen-body">
+                    <h3>Generate Flashcards</h3>
+                    <p>Create front/back study cards from your knowledge base content using AI.</p>
+                    <div class="learn-gen-controls">
+                      <label>Number of cards</label>
+                      <div class="num-picker" id="flash-num-picker">
+                        <button class="num-btn active" data-val="10">10</button>
+                        <button class="num-btn" data-val="15">15</button>
+                        <button class="num-btn" data-val="20">20</button>
+                      </div>
+                      <button class="btn-generate flash-gen" id="generate-flash-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        Generate Flashcards
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Saved flashcard sets list -->
+                <div class="learn-list-header">
+                  <h4>Saved Flashcard Sets</h4>
+                  <span class="learn-list-count" id="flash-count">0</span>
+                </div>
+                <div id="flash-list" class="learn-item-list">
+                  <!-- populated by JS -->
+                </div>
+
+                <!-- Flashcard player -->
+                <div id="flash-player" class="player-panel hidden">
+                  <div class="player-header">
+                    <button class="player-back-btn" id="flash-back-btn">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                      Back to Flashcards
+                    </button>
+                    <h3 id="flash-player-title">Flashcards</h3>
+                  </div>
+                  <div class="flash-progress-row">
+                    <span id="flash-counter">1 / 10</span>
+                    <div class="flash-progress-dots" id="flash-dots"></div>
+                  </div>
+                  <div class="flashcard-scene" id="flashcard-scene">
+                    <div class="flashcard" id="flashcard">
+                      <div class="flashcard-face flashcard-front">
+                        <div class="flashcard-label">QUESTION</div>
+                        <div class="flashcard-text" id="flash-front-text">Front</div>
+                        <div class="flashcard-hint">Click to reveal answer</div>
+                      </div>
+                      <div class="flashcard-face flashcard-back">
+                        <div class="flashcard-label">ANSWER</div>
+                        <div class="flashcard-text" id="flash-back-text">Back</div>
+                        <div class="flashcard-hint">Click to flip back</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flash-nav">
+                    <button class="flash-nav-btn" id="flash-prev-btn">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                      Prev
+                    </button>
+                    <button class="flash-nav-btn primary" id="flash-next-btn">
+                      Next
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /learn-scroll -->
+          </div><!-- /learn-panel -->
+
+        </div><!-- /main-area -->
+      </div><!-- /chat-view -->
 
     </div><!-- /#app -->
     <script type="module" src="/main.js"></script>

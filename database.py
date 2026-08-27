@@ -1,5 +1,6 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Text, DateTime
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
+import datetime
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./app.db"
 
@@ -28,6 +29,39 @@ class KnowledgeBase(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     
     owner = relationship("User", back_populates="knowledge_bases")
+    quizzes = relationship("Quiz", back_populates="kb", cascade="all, delete-orphan")
+    flashcard_sets = relationship("FlashcardSet", back_populates="kb", cascade="all, delete-orphan")
+
+class Quiz(Base):
+    """Stores an AI-generated multiple-choice quiz linked to a knowledge base.
+    
+    `questions` is a JSON string: list of
+    {"question": str, "options": [A, B, C, D], "answer": str, "explanation": str}
+    """
+    __tablename__ = "quizzes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    kb_id = Column(Integer, ForeignKey("knowledge_bases.id"), nullable=False)
+    title = Column(String, nullable=False)
+    questions = Column(Text, nullable=False)  # JSON array
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    kb = relationship("KnowledgeBase", back_populates="quizzes")
+
+class FlashcardSet(Base):
+    """Stores an AI-generated flashcard set linked to a knowledge base.
+    
+    `cards` is a JSON string: list of {"front": str, "back": str}
+    """
+    __tablename__ = "flashcard_sets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    kb_id = Column(Integer, ForeignKey("knowledge_bases.id"), nullable=False)
+    title = Column(String, nullable=False)
+    cards = Column(Text, nullable=False)  # JSON array
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    kb = relationship("KnowledgeBase", back_populates="flashcard_sets")
 
 Base.metadata.create_all(bind=engine)
 
