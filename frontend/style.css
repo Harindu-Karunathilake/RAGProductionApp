@@ -2114,13 +2114,17 @@ body {
    DASHBOARD PANELS & CHARTS
    ════════════════════════════════════════════════════ */
 
-.dash-panel { display: block; }
+.dash-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
 .dash-panel.hidden { display: none; }
 
-/* 4-col stat grid */
+/* 4-col stat grid — override the 3-col default */
 .stats-row {
-  display: grid;
   grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
 }
 
 .stat-icon.teal {
@@ -2149,7 +2153,6 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr 2fr;
   gap: 16px;
-  margin-bottom: 28px;
 }
 .chart-card {
   background: var(--bg-card);
