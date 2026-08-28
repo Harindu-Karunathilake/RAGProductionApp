@@ -2109,3 +2109,210 @@ body {
   .landing-hero { padding: 60px 18px; }
   .landing-section { padding: 70px 18px; }
 }
+
+/* ════════════════════════════════════════════════════
+   DASHBOARD PANELS & CHARTS
+   ════════════════════════════════════════════════════ */
+
+.dash-panel { display: block; }
+.dash-panel.hidden { display: none; }
+
+/* 4-col stat grid */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.stat-icon.teal {
+  background: rgba(20,184,166,.12);
+  color: #14b8a6;
+}
+.stat-icon.teal svg { stroke: #14b8a6; }
+
+/* Section header action button */
+.section-header { display: flex; align-items: center; justify-content: space-between; }
+.section-header-action {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  transition: background 0.2s;
+}
+.section-header-action:hover { background: rgba(99,102,241,0.1); }
+
+/* Charts row */
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  overflow: hidden;
+}
+.chart-wide { grid-column: span 1; }
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.chart-header h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-1);
+}
+.chart-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-2);
+  background: rgba(99,102,241,0.12);
+  border: 1px solid rgba(99,102,241,0.2);
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+.chart-body {
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+.chart-empty {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-3);
+  padding: 20px 0;
+}
+
+/* Bar chart */
+.bar-row {
+  display: grid;
+  grid-template-columns: 90px 1fr 28px;
+  align-items: center;
+  gap: 10px;
+}
+.bar-label {
+  font-size: 12px;
+  color: var(--text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bar-track {
+  height: 8px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 100px;
+  animation: barGrow 0.6s ease both;
+  transform-origin: left;
+}
+@keyframes barGrow {
+  from { width: 0 !important; }
+}
+.bar-val {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  text-align: right;
+}
+
+/* Donut chart */
+.chart-donut-wrap {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 16px;
+}
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+.donut-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+}
+.donut-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.donut-name {
+  color: var(--text-2);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.donut-count {
+  font-weight: 600;
+  color: var(--text-1);
+  font-size: 11px;
+}
+
+/* Activity list */
+.activity-row {
+  display: grid;
+  grid-template-columns: 8px 1fr 1fr 50px;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+}
+.activity-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.activity-name {
+  font-size: 13px;
+  color: var(--text-1);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.activity-bar-wrap {
+  height: 6px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.activity-bar {
+  height: 100%;
+  border-radius: 100px;
+  min-width: 4px;
+  animation: barGrow 0.5s ease both;
+}
+.activity-meta {
+  font-size: 11px;
+  color: var(--text-3);
+  text-align: right;
+  white-space: nowrap;
+}
+
+@media (max-width: 1100px) {
+  .charts-row { grid-template-columns: 1fr 1fr; }
+  .chart-wide { grid-column: span 2; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 700px) {
+  .charts-row { grid-template-columns: 1fr; }
+  .chart-wide { grid-column: span 1; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+}

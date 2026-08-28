@@ -386,78 +386,135 @@
           <!-- Scrollable content -->
           <div class="content-scroll">
 
-            <!-- Hero Banner -->
-            <div class="hero-banner">
-              <div class="hero-glow"></div>
-              <div class="hero-illustration">
-                <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="60" cy="60" r="50" fill="url(#g1)" opacity="0.15"/>
-                  <circle cx="60" cy="60" r="35" fill="url(#g1)" opacity="0.2"/>
-                  <circle cx="60" cy="60" r="18" fill="url(#g1)" opacity="0.35"/>
-                  <path d="M48 78 Q44 95 40 105" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
-                  <path d="M54 82 Q52 100 50 112" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
-                  <path d="M60 83 Q60 102 60 114" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
-                  <path d="M66 82 Q68 100 70 112" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
-                  <path d="M72 78 Q76 95 80 105" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
-                  <ellipse cx="52" cy="50" rx="10" ry="7" fill="white" opacity="0.08" transform="rotate(-20 52 50)"/>
-                  <defs>
-                    <radialGradient id="g1" cx="50%" cy="40%" r="50%">
-                      <stop offset="0%" stop-color="#818cf8"/>
-                      <stop offset="100%" stop-color="#3730a3"/>
-                    </radialGradient>
-                    <linearGradient id="g2" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stop-color="#818cf8" stop-opacity="0.8"/>
-                      <stop offset="100%" stop-color="#818cf8" stop-opacity="0"/>
-                    </linearGradient>
-                  </defs>
-                </svg>
-              </div>
-              <div class="hero-text">
-                <p class="hero-eyebrow">AI-Powered</p>
-                <h2 class="hero-title">Welcome <span id="hero-username">your workspace</span></h2>
-                <p class="hero-sub">Manage your knowledge bases, upload documents, and chat with your data using AI.</p>
-              </div>
-            </div>
+            <!-- ── OVERVIEW PANEL ── -->
+            <div id="panel-overview" class="dash-panel">
 
-            <!-- Stats Row -->
-            <div class="stats-row">
-              <div class="stat-card">
-                <div class="stat-icon blue">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              <!-- Hero Banner -->
+              <div class="hero-banner">
+                <div class="hero-glow"></div>
+                <div class="hero-illustration">
+                  <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="60" cy="60" r="50" fill="url(#g1)" opacity="0.15"/>
+                    <circle cx="60" cy="60" r="35" fill="url(#g1)" opacity="0.2"/>
+                    <circle cx="60" cy="60" r="18" fill="url(#g1)" opacity="0.35"/>
+                    <path d="M48 78 Q44 95 40 105" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M54 82 Q52 100 50 112" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M60 83 Q60 102 60 114" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M66 82 Q68 100 70 112" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M72 78 Q76 95 80 105" stroke="url(#g2)" stroke-width="1.5" stroke-linecap="round"/>
+                    <ellipse cx="52" cy="50" rx="10" ry="7" fill="white" opacity="0.08" transform="rotate(-20 52 50)"/>
+                    <defs>
+                      <radialGradient id="g1" cx="50%" cy="40%" r="50%">
+                        <stop offset="0%" stop-color="#818cf8"/>
+                        <stop offset="100%" stop-color="#3730a3"/>
+                      </radialGradient>
+                      <linearGradient id="g2" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#818cf8" stop-opacity="0.8"/>
+                        <stop offset="100%" stop-color="#818cf8" stop-opacity="0"/>
+                      </linearGradient>
+                    </defs>
+                  </svg>
                 </div>
-                <div class="stat-body">
-                  <span class="stat-label">Knowledge Bases</span>
-                  <span class="stat-value" id="stat-kbs">0</span>
+                <div class="hero-text">
+                  <p class="hero-eyebrow">AI-Powered</p>
+                  <h2 class="hero-title">Welcome <span id="hero-username">your workspace</span></h2>
+                  <p class="hero-sub">Manage your knowledge bases, upload documents, and chat with your data using AI.</p>
                 </div>
               </div>
-              <div class="stat-card">
-                <div class="stat-icon violet">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                </div>
-                <div class="stat-body">
-                  <span class="stat-label">Documents Indexed</span>
-                  <span class="stat-value">—</span>
-                </div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-icon cyan">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                </div>
-                <div class="stat-body">
-                  <span class="stat-label">AI Queries</span>
-                  <span class="stat-value">—</span>
-                </div>
-              </div>
-            </div>
 
-            <!-- KB Section -->
-            <div class="section-header">
-              <h3>Knowledge Bases</h3>
-            </div>
+              <!-- Stats Row -->
+              <div class="stats-row">
+                <div class="stat-card">
+                  <div class="stat-icon blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                  </div>
+                  <div class="stat-body">
+                    <span class="stat-label">Knowledge Bases</span>
+                    <span class="stat-value" id="stat-kbs">0</span>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-icon violet">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  </div>
+                  <div class="stat-body">
+                    <span class="stat-label">Documents Indexed</span>
+                    <span class="stat-value" id="stat-docs">0</span>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-icon cyan">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  </div>
+                  <div class="stat-body">
+                    <span class="stat-label">Total Quizzes</span>
+                    <span class="stat-value" id="stat-quizzes">0</span>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-icon teal">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                  </div>
+                  <div class="stat-body">
+                    <span class="stat-label">Flashcard Sets</span>
+                    <span class="stat-value" id="stat-flashcards">0</span>
+                  </div>
+                </div>
+              </div>
 
-            <div class="kb-grid" id="kb-grid">
-              <!-- populated by JS -->
-            </div>
+              <!-- Charts Row -->
+              <div class="charts-row">
+                <!-- Bar chart: docs per KB -->
+                <div class="chart-card">
+                  <div class="chart-header">
+                    <h4>Documents per Knowledge Base</h4>
+                    <span class="chart-badge">Files</span>
+                  </div>
+                  <div class="chart-body" id="chart-docs-per-kb">
+                    <div class="chart-empty">No data yet</div>
+                  </div>
+                </div>
+                <!-- Donut chart: KB distribution -->
+                <div class="chart-card">
+                  <div class="chart-header">
+                    <h4>Knowledge Base Overview</h4>
+                    <span class="chart-badge">Distribution</span>
+                  </div>
+                  <div class="chart-body chart-donut-wrap" id="chart-donut-wrap">
+                    <svg id="chart-donut" viewBox="0 0 120 120" width="120" height="120">
+                      <circle cx="60" cy="60" r="48" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="18"/>
+                    </svg>
+                    <div class="donut-legend" id="donut-legend"></div>
+                  </div>
+                </div>
+                <!-- Activity timeline -->
+                <div class="chart-card chart-wide">
+                  <div class="chart-header">
+                    <h4>Knowledge Base Activity</h4>
+                    <span class="chart-badge">Overview</span>
+                  </div>
+                  <div class="chart-body" id="chart-activity">
+                    <div class="chart-empty">No data yet</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Recent KBs quick list -->
+              <div class="section-header">
+                <h3>Recent Knowledge Bases</h3>
+                <button class="section-header-action" id="overview-view-all-btn">View all →</button>
+              </div>
+              <div class="kb-grid" id="kb-grid-overview"></div>
+
+            </div><!-- /panel-overview -->
+
+            <!-- ── KNOWLEDGE BASES PANEL ── -->
+            <div id="panel-kb" class="dash-panel hidden">
+              <div class="section-header" style="margin-top:0">
+                <h3>All Knowledge Bases</h3>
+              </div>
+              <div class="kb-grid" id="kb-grid"></div>
+            </div><!-- /panel-kb -->
 
           </div><!-- /content-scroll -->
         </div><!-- /main-area -->

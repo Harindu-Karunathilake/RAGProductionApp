@@ -16,9 +16,9 @@ const registerBtn   = document.getElementById('register-btn');
 const authError     = document.getElementById('auth-error');
 const logoutBtn     = document.getElementById('logout-btn');
 
-// ── Dashboard ─────────────────────────────────────────
-const createKbBtn   = document.getElementById('create-kb-btn');
+// ── Dashboard panels ────────────────────────────────
 const kbGrid        = document.getElementById('kb-grid');
+const kbGridOverview= document.getElementById('kb-grid-overview');
 const newKbName     = document.getElementById('new-kb-name');
 const newKbDesc     = document.getElementById('new-kb-desc');
 const cancelKbBtn   = document.getElementById('cancel-kb-btn');
@@ -167,6 +167,7 @@ async function fetchKbs() {
 
 async function showDashboard() {
   showView(dashboardView);
+  showDashPanel('overview');
 
   const uname = decodeUsername();
   const heroEl = document.getElementById('hero-username');
@@ -180,23 +181,162 @@ async function showDashboard() {
     if (el) el.textContent = uname[0].toUpperCase();
   });
 
-  kbGrid.innerHTML = `
-    <div style="grid-column:1/-1;text-align:center;padding:60px 0;color:#4b5563;font-size:.875rem;">
-      Loading…
-    </div>`;
+  // Show loading skeletons in KB grids
+  const loadingHtml = `<div style="grid-column:1/-1;text-align:center;padding:40px 0;color:#4b5563;font-size:.875rem;">Loading…</div>`;
+  if (kbGrid)         kbGrid.innerHTML = loadingHtml;
+  if (kbGridOverview) kbGridOverview.innerHTML = loadingHtml;
 
   allKbs = await fetchKbs();
 
-  const statEl = document.getElementById('stat-kbs');
-  if (statEl) statEl.textContent = allKbs.length;
+  // ── Fetch docs count per KB ─────────────────────────────
+  const docCounts = {};
+  await Promise.all(allKbs.map(async kb => {
+    try {
+      const res = await fetch(`${API_BASE}/kb/${kb.id}/files`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      const files = res.ok ? await res.json() : [];
+      docCounts[kb.id] = { name: kb.name, count: files.length };
+    } catch { docCounts[kb.id] = { name: kb.name, count: 0 }; }
+  }));
 
-  renderKbGrid(allKbs);
+  // ── Fetch quiz + flashcard counts per KB ────────────────
+  let totalQuizzes = 0, totalFlash = 0;
+  await Promise.all(allKbs.map(async kb => {
+    try {
+      const [qRes, fRes] = await Promise.all([
+        fetch(`${API_BASE}/kb/${kb.id}/quizzes`,    { headers: { 'Authorization': `Bearer ${authToken}` } }),
+        fetch(`${API_BASE}/kb/${kb.id}/flashcards`, { headers: { 'Authorization': `Bearer ${authToken}` } })
+      ]);
+      const quizzes   = qRes.ok ? await qRes.json() : [];
+      const flashcards = fRes.ok ? await fRes.json() : [];
+      totalQuizzes += quizzes.length;
+      totalFlash   += flashcards.length;
+    } catch {}
+  }));
+
+  // ── Update stat cards ───────────────────────────────────
+  const totalDocs = Object.values(docCounts).reduce((s, v) => s + v.count, 0);
+  const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setEl('stat-kbs',        allKbs.length);
+  setEl('stat-docs',       totalDocs);
+  setEl('stat-quizzes',    totalQuizzes);
+  setEl('stat-flashcards', totalFlash);
+
+  // ── Render charts ───────────────────────────────────────
+  renderBarChart(docCounts);
+  renderDonutChart(docCounts);
+  renderActivityList(allKbs, docCounts);
+
+  // ── Render KB grids ─────────────────────────────────────
+  renderKbGrid(allKbs, kbGrid);
+  const recent = allKbs.slice(-3).reverse();
+  renderKbGrid(recent, kbGridOverview);
 }
 
-function renderKbGrid(kbs) {
-  kbGrid.innerHTML = '';
+// ════════════════════════════════════════════════════
+// DASHBOARD TAB SWITCHING
+// ════════════════════════════════════════════════════
+function showDashPanel(name) {
+  document.getElementById('panel-overview').classList.toggle('hidden', name !== 'overview');
+  document.getElementById('panel-kb').classList.toggle('hidden', name !== 'kb');
+  document.getElementById('nav-dashboard').classList.toggle('active', name === 'overview');
+  document.getElementById('nav-kb').classList.toggle('active', name === 'kb');
+}
+
+document.getElementById('nav-dashboard').addEventListener('click', () => showDashPanel('overview'));
+document.getElementById('nav-kb').addEventListener('click', () => showDashPanel('kb'));
+document.getElementById('overview-view-all-btn').addEventListener('click', () => showDashPanel('kb'));
+
+// ════════════════════════════════════════════════════
+// CHARTS
+// ════════════════════════════════════════════════════
+const CHART_COLORS = ['#6366f1','#06b6d4','#8b5cf6','#14b8a6','#f59e0b','#ef4444','#3b82f6','#ec4899'];
+
+function renderBarChart(docCounts) {
+  const el = document.getElementById('chart-docs-per-kb');
+  if (!el) return;
+  const entries = Object.values(docCounts);
+  if (entries.length === 0) { el.innerHTML = '<div class="chart-empty">No knowledge bases yet</div>'; return; }
+  const max = Math.max(...entries.map(e => e.count), 1);
+  el.innerHTML = entries.map((e, i) => `
+    <div class="bar-row">
+      <div class="bar-label" title="${escHtml(e.name)}">${escHtml(e.name.length > 14 ? e.name.slice(0,13)+'…' : e.name)}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${Math.max((e.count/max)*100,4)}%;background:${CHART_COLORS[i % CHART_COLORS.length]};animation-delay:${i*80}ms"></div>
+      </div>
+      <div class="bar-val">${e.count}</div>
+    </div>`).join('');
+}
+
+function renderDonutChart(docCounts) {
+  const svg = document.getElementById('chart-donut');
+  const legend = document.getElementById('donut-legend');
+  if (!svg || !legend) return;
+  const entries = Object.values(docCounts);
+  const total = entries.reduce((s, e) => s + e.count, 0);
+
+  if (total === 0) {
+    svg.innerHTML = `<circle cx="60" cy="60" r="48" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="18"/>
+      <text x="60" y="65" text-anchor="middle" fill="#4b5563" font-size="10" font-family="Inter">No docs</text>`;
+    legend.innerHTML = '';
+    return;
+  }
+
+  const circumference = 2 * Math.PI * 48; // r=48
+  let offset = 0;
+  const slices = entries.map((e, i) => {
+    const pct = e.count / total;
+    const dash = pct * circumference;
+    const gap  = circumference - dash;
+    const slice = `<circle cx="60" cy="60" r="48" fill="none"
+      stroke="${CHART_COLORS[i % CHART_COLORS.length]}"
+      stroke-width="18"
+      stroke-dasharray="${dash.toFixed(2)} ${gap.toFixed(2)}"
+      stroke-dashoffset="${(-offset).toFixed(2)}"
+      transform="rotate(-90 60 60)"
+      style="transition:stroke-dasharray .6s ease"/>`;
+    offset += dash;
+    return slice;
+  }).join('');
+
+  svg.innerHTML = `<circle cx="60" cy="60" r="48" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="18"/>${slices}
+    <text x="60" y="56" text-anchor="middle" fill="#f9fafb" font-size="16" font-weight="700" font-family="Inter">${total}</text>
+    <text x="60" y="70" text-anchor="middle" fill="#6b7280" font-size="9" font-family="Inter">total docs</text>`;
+
+  legend.innerHTML = entries.map((e, i) => `
+    <div class="donut-legend-item">
+      <span class="donut-dot" style="background:${CHART_COLORS[i % CHART_COLORS.length]}"></span>
+      <span class="donut-name" title="${escHtml(e.name)}">${escHtml(e.name.length > 12 ? e.name.slice(0,11)+'…' : e.name)}</span>
+      <span class="donut-count">${e.count}</span>
+    </div>`).join('');
+}
+
+function renderActivityList(kbs, docCounts) {
+  const el = document.getElementById('chart-activity');
+  if (!el) return;
+  if (kbs.length === 0) { el.innerHTML = '<div class="chart-empty">No knowledge bases yet</div>'; return; }
+  el.innerHTML = kbs.map((kb, i) => {
+    const docs  = (docCounts[kb.id] || {}).count || 0;
+    const color = CHART_COLORS[i % CHART_COLORS.length];
+    const pct   = docs > 0 ? Math.min(100, docs * 20) : 5;
+    return `
+    <div class="activity-row">
+      <div class="activity-dot" style="background:${color}"></div>
+      <div class="activity-name">${escHtml(kb.name)}</div>
+      <div class="activity-bar-wrap">
+        <div class="activity-bar" style="width:${pct}%;background:${color};animation-delay:${i*60}ms"></div>
+      </div>
+      <div class="activity-meta">${docs} doc${docs !== 1 ? 's' : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderKbGrid(kbs, container) {
+  if (!container) container = kbGrid;
+  container.innerHTML = '';
   if (kbs.length === 0) {
-    kbGrid.innerHTML = `
+    container.innerHTML = `
       <div class="kb-empty">
         <div class="kb-empty-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
@@ -232,16 +372,17 @@ function renderKbGrid(kbs) {
         </div>
       </div>`;
     card.addEventListener('click', () => openChat(kb.id, kb.name));
-    kbGrid.appendChild(card);
+    container.appendChild(card);
   });
 }
 
 dashSearch && dashSearch.addEventListener('input', () => {
   const q = dashSearch.value.toLowerCase();
-  renderKbGrid(allKbs.filter(kb => kb.name.toLowerCase().includes(q) || (kb.description || '').toLowerCase().includes(q)));
+  renderKbGrid(allKbs.filter(kb => kb.name.toLowerCase().includes(q) || (kb.description || '').toLowerCase().includes(q)), kbGrid);
 });
 
 // Modal
+const createKbBtn = document.getElementById('create-kb-btn');
 createKbBtn.addEventListener('click', () => newKbModal.classList.remove('hidden'));
 cancelKbBtn.addEventListener('click',  () => newKbModal.classList.add('hidden'));
 cancelKbBtn2.addEventListener('click', () => newKbModal.classList.add('hidden'));
