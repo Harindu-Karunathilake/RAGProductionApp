@@ -13,9 +13,267 @@
     <div id="app">
 
       <!-- ════════════════════════════════════════
+           LANDING VIEW
+           ════════════════════════════════════════ -->
+      <div id="landing-view" class="view active" style="overflow-y:auto; flex-direction:column;">
+
+        <!-- ── Navbar ── -->
+        <nav class="landing-nav" id="landing-nav">
+          <div class="landing-nav-inner">
+            <a class="landing-brand" id="landing-logo-link">
+              <div class="brand-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              </div>
+              <span class="brand-name">RAG<span class="brand-accent">base</span></span>
+            </a>
+            <div class="landing-nav-links">
+              <a class="landing-nav-link" href="#features">Features</a>
+              <a class="landing-nav-link" href="#how-it-works">How it Works</a>
+              <a class="landing-nav-link" href="#about">About</a>
+            </div>
+            <button class="landing-nav-cta" id="landing-login-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+              Sign In
+            </button>
+          </div>
+        </nav>
+
+        <!-- ── Hero ── -->
+        <section class="landing-hero">
+          <div class="landing-hero-bg"></div>
+          <div class="landing-orb landing-orb-1"></div>
+          <div class="landing-orb landing-orb-2"></div>
+          <div class="landing-orb landing-orb-3"></div>
+          <div class="landing-hero-content">
+            <!-- Left column: text -->
+            <div class="landing-hero-left">
+              <div class="landing-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                Powered by Google Gemini 2.5 Flash
+              </div>
+              <h1 class="landing-hero-title">
+                Turn any <span class="landing-gradient-text">document</span><br/>into a conversation
+              </h1>
+              <p class="landing-hero-sub">
+                Upload PDFs, build knowledge bases, and instantly chat, quiz, and flashcard your way through any topic — all with production-grade AI.
+              </p>
+              <div class="landing-hero-actions">
+                <button class="landing-cta-primary" id="landing-get-started-btn">
+                  Get Started Free
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+                <a class="landing-cta-secondary" href="#how-it-works">
+                  See how it works
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </a>
+              </div>
+            </div>
+            <!-- Right column: preview card -->
+            <div class="landing-hero-preview">
+              <div class="preview-card">
+                <div class="preview-header">
+                  <div class="preview-dots">
+                    <span></span><span></span><span></span>
+                  </div>
+                  <span class="preview-title">RAGbase Chat</span>
+                </div>
+                <div class="preview-messages">
+                  <div class="preview-msg user">What are the key findings in Chapter 3?</div>
+                  <div class="preview-msg ai">
+                    <div class="preview-ai-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <div>
+                      <p>Based on your document, Chapter 3 highlights:</p>
+                      <ul>
+                        <li>• Neural embeddings outperform TF-IDF by 34%</li>
+                        <li>• Chunk overlap of 200 tokens is optimal</li>
+                        <li>• Cosine similarity achieves 91% recall</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="preview-input-bar">
+                  <span>Ask anything about your documents…</span>
+                  <div class="preview-send">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Features ── -->
+        <section class="landing-section" id="features">
+          <div class="landing-section-inner">
+            <div class="landing-section-label">Features</div>
+            <h2 class="landing-section-title">Everything you need to unlock your documents</h2>
+            <p class="landing-section-sub">A complete production-grade RAG platform with AI-powered learning tools built in.</p>
+            <div class="features-grid">
+              <div class="feature-card">
+                <div class="feature-icon" style="--c:#6366f1">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                </div>
+                <h3>PDF Ingestion</h3>
+                <p>Upload any PDF. It's automatically chunked, embedded with Gemini's 3072-dim model, and stored in Qdrant — ready to query in seconds.</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon" style="--c:#06b6d4">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <h3>AI Chat (RAG)</h3>
+                <p>Ask natural language questions. Get grounded, cited answers generated by Gemini 2.5 Flash — sourced directly from your documents.</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon" style="--c:#8b5cf6">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <h3>Quiz Generation</h3>
+                <p>Generate multiple-choice quizzes from any knowledge base with one click. Each question comes with an AI explanation of the correct answer.</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon" style="--c:#14b8a6">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                </div>
+                <h3>Flashcard Decks</h3>
+                <p>AI-generated front/back study cards with smooth flip animations. Study any concept from your knowledge bases with spaced repetition in mind.</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon" style="--c:#f59e0b">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                </div>
+                <h3>Knowledge Bases</h3>
+                <p>Organise your documents into isolated knowledge bases. Each KB gets its own vector collection — no cross-contamination of context.</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon" style="--c:#ef4444">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                </div>
+                <h3>Async Processing</h3>
+                <p>PDF ingestion runs in the background via Inngest — throttled, rate-limited, and fully durable. Upload and move on; the pipeline handles the rest.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── How It Works ── -->
+        <section class="landing-section landing-section-dark" id="how-it-works">
+          <div class="landing-section-inner">
+            <div class="landing-section-label">How It Works</div>
+            <h2 class="landing-section-title">From upload to insight in four steps</h2>
+            <p class="landing-section-sub">A battle-tested RAG pipeline under the hood — simple on the surface.</p>
+            <div class="how-steps">
+              <div class="how-step">
+                <div class="how-step-num">01</div>
+                <div class="how-step-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </div>
+                <div class="how-step-body">
+                  <h3>Upload your PDFs</h3>
+                  <p>Create a Knowledge Base, then drag-and-drop your documents. Files are securely stored and ingestion kicks off immediately in the background.</p>
+                </div>
+                <div class="how-step-connector"></div>
+              </div>
+              <div class="how-step">
+                <div class="how-step-num">02</div>
+                <div class="how-step-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </div>
+                <div class="how-step-body">
+                  <h3>Automatic chunking &amp; embedding</h3>
+                  <p>LlamaIndex splits your text into 1000-token chunks with 200-token overlap. Each chunk is embedded into a 3072-dimensional vector via Gemini Embedding.</p>
+                </div>
+                <div class="how-step-connector"></div>
+              </div>
+              <div class="how-step">
+                <div class="how-step-num">03</div>
+                <div class="how-step-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                </div>
+                <div class="how-step-body">
+                  <h3>Stored in Qdrant</h3>
+                  <p>Vectors are upserted into a dedicated Qdrant collection per knowledge base. Cosine similarity search retrieves the top-k most relevant chunks at query time.</p>
+                </div>
+                <div class="how-step-connector"></div>
+              </div>
+              <div class="how-step">
+                <div class="how-step-num">04</div>
+                <div class="how-step-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <div class="how-step-body">
+                  <h3>Gemini answers your question</h3>
+                  <p>Retrieved chunks are assembled into a grounded prompt and sent to Gemini 2.5 Flash, which returns a structured Markdown answer with cited sources.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── About ── -->
+        <section class="landing-section" id="about">
+          <div class="landing-section-inner">
+            <div class="landing-section-label">About</div>
+            <h2 class="landing-section-title">Built for production, not just demos</h2>
+            <p class="landing-section-sub">RAGbase is a full-stack, self-hosted knowledge platform — open source and designed to run anywhere with Docker.</p>
+            <div class="about-grid">
+              <div class="about-card">
+                <div class="about-card-icon">🧠</div>
+                <h3>State-of-the-art AI</h3>
+                <p>Gemini 2.5 Flash for generation and <code>gemini-embedding-2</code> (3072-dim) for embeddings — the same models powering Google's flagship products.</p>
+              </div>
+              <div class="about-card">
+                <div class="about-card-icon">⚡</div>
+                <h3>Production architecture</h3>
+                <p>FastAPI + Uvicorn backend, Qdrant vector DB, Inngest durable job queue, JWT auth, SQLite persistence — every component is production-grade.</p>
+              </div>
+              <div class="about-card">
+                <div class="about-card-icon">🐳</div>
+                <h3>One-command deploy</h3>
+                <p><code>docker compose up --build</code> starts the entire stack — backend, frontend, vector DB, and workflow engine — with zero configuration.</p>
+              </div>
+              <div class="about-card">
+                <div class="about-card-icon">🔐</div>
+                <h3>Secure &amp; private</h3>
+                <p>JWT-based authentication, bcrypt password hashing, per-user knowledge base isolation. Your data stays on your infrastructure.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── CTA Banner ── -->
+        <section class="landing-cta-section">
+          <div class="landing-cta-inner">
+            <div class="landing-orb landing-orb-cta"></div>
+            <h2>Ready to chat with your documents?</h2>
+            <p>Create an account and upload your first PDF in under a minute.</p>
+            <button class="landing-cta-primary lg" id="landing-get-started-btn-2">
+              Get Started — It's Free
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </section>
+
+        <!-- ── Footer ── -->
+        <footer class="landing-footer">
+          <div class="landing-footer-inner">
+            <div class="landing-brand">
+              <div class="brand-icon sm">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              </div>
+              <span class="brand-name">RAG<span class="brand-accent">base</span></span>
+            </div>
+            <p class="landing-footer-copy">Built with Google Gemini · Qdrant · FastAPI · Inngest · LlamaIndex</p>
+          </div>
+        </footer>
+
+      </div><!-- /landing-view -->
+
+      <!-- ════════════════════════════════════════
            LOGIN VIEW
            ════════════════════════════════════════ -->
-      <div id="login-view" class="view active">
+      <div id="login-view" class="view hidden">
         <div class="login-bg-texture"></div>
         <div class="login-glow-1"></div>
         <div class="login-glow-2"></div>

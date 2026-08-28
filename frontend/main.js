@@ -2,6 +2,7 @@ import { marked } from 'marked';
 const API_BASE = '/api';
 
 // ── Views ────────────────────────────────────────────
+const landingView   = document.getElementById('landing-view');
 const loginView     = document.getElementById('login-view');
 const dashboardView = document.getElementById('dashboard-view');
 const chatView      = document.getElementById('chat-view');
@@ -61,7 +62,7 @@ let fcIdx       = 0;
 // ROUTER
 // ════════════════════════════════════════════════════
 function showView(view) {
-  [loginView, dashboardView, chatView].forEach(v => {
+  [landingView, loginView, dashboardView, chatView].forEach(v => {
     v.classList.remove('active');
     v.classList.add('hidden');
   });
@@ -71,7 +72,7 @@ function showView(view) {
 
 function init() {
   if (authToken) showDashboard();
-  else           showView(loginView);
+  else           showView(landingView);
 }
 
 // ════════════════════════════════════════════════════
@@ -131,7 +132,15 @@ passwordInput.addEventListener('keypress', e => { if (e.key === 'Enter') handleA
 logoutBtn.addEventListener('click', () => {
   authToken = null;
   localStorage.removeItem('token');
-  showView(loginView);
+  showView(landingView);
+});
+
+// ── Landing page navigation ───────────────────────────
+document.getElementById('landing-login-btn').addEventListener('click', () => showView(loginView));
+document.getElementById('landing-get-started-btn').addEventListener('click', () => showView(loginView));
+document.getElementById('landing-get-started-btn-2').addEventListener('click', () => showView(loginView));
+document.getElementById('landing-logo-link').addEventListener('click', () => {
+  landingView.scrollTop = 0;
 });
 
 // ════════════════════════════════════════════════════
